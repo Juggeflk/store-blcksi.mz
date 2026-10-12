@@ -59,7 +59,7 @@ var PRODUTOS = [
     preco: 1200,
     tamanhos: ["S", "M", "L", "XL"],
     imagens: ["../styles/assets/img/camisa-07.webp", "../styles/assets/img/camisa-08.webp", "", ""],
-    descricao: "Camisa oversized com acabamento fosco, ideal para compor looks urbanos."
+    descricao: "Camisa oversized, ideal para compor looks. Escolha com base"
   },
   {
     id: "camisa-09",
