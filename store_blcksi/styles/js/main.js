@@ -186,3 +186,28 @@ function renderBLCKSICategories(categories) {
 document.addEventListener("DOMContentLoaded", function () {
   renderBLCKSICategories(window.BLCKSI_CATEGORIES);
 });
+
+/* BLCKSI V7.1 — menu móvel nas páginas internas */
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".site-header .menu-toggle").forEach(function (button) {
+    if (button.dataset.blcksiMenuReady === "true") return;
+    var header = button.closest(".site-header");
+    var nav = header ? header.querySelector(".nav-links") : null;
+    if (!nav) return;
+    button.dataset.blcksiMenuReady = "true";
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", function () {
+      var opened = nav.classList.toggle("is-open");
+      button.classList.toggle("is-active", opened);
+      button.setAttribute("aria-expanded", String(opened));
+      button.setAttribute("aria-label", opened ? "Fechar menu" : "Abrir menu");
+    });
+    nav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        nav.classList.remove("is-open");
+        button.classList.remove("is-active");
+        button.setAttribute("aria-expanded", "false");
+      });
+    });
+  });
+});
