@@ -1,55 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<script>(function(){try{var t=localStorage.getItem("blcksiTema");document.documentElement.setAttribute("data-theme", t==="neon"?"neon":"dark");}catch(e){}})();</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Produto — BLCKSI</title>
-<link rel="stylesheet" href="../styles/css/main.css?v=1783982972">
-<link rel="stylesheet" href="../styles/css/local-icons.css?v=1">
+<link rel="stylesheet" href="../styles/css/main.css?v=blcksi-v4">
 </head>
-<body>
-
-<header class="site-header">
-  <div class="wrap">
-    <a href="index.html" class="logo">BLCKSI</a>
-    <nav class="nav-links">
-      <a href="sobre.html">sobre</a>
-      <a href="servico.html">serviços</a>
-      <a href="contacto.html">contacto</a>
-    </nav>
-    <button class="theme-toggle" id="themeToggle" aria-label="alternar tema">
-      <svg class="ti ti-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5z"/></svg>
-    </button>
-    <button class="menu-toggle" aria-label="abrir menu">
-      <svg class="ti ti-menu-2" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-  </div>
-</header>
-
-<div class="wrap" id="produtoContainer"></div>
-
-<section>
-  <div class="wrap">
-    <div class="section-label">OUTRAS PEÇAS</div>
-    <div class="related-grid" id="relatedGrid"></div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <span class="footer-copy">BLCKSI © 2026</span>
-    <div class="footer-links">
-      <a href="index.html">início</a>
-      <a href="contacto.html">contacto</a>
-    
-      <a href="trocas-devolucoes.html">trocas e devoluções</a>
-    </div>
-  </div>
-</footer>
-
-<script src="../styles/js/produtos-data.js?v=1783988685"></script>
-<script src="../styles/js/produto.js?v=1783988685"></script>
-<script src="../styles/js/main.js?v=1783988685"></script>
-</body>
-</html>
+<body class="store-product-page">
+<header class="site-header"><div class="wrap header-inner">
+<button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+<a href="index.html" class="logo"><strong>BLK</strong><span>BLCKSI</span></a>
+<nav class="nav-links"><a href="index.html#novidades">Novidades</a><a href="index.html#categorias">Loja</a><a href="sobre.html">Sobre</a></nav>
+<div class="nav-actions"><a class="cart-link" href="carrinho.html">🛒 <span class="cart-count">0</span></a></div>
+</div></header>
+<main class="product-page"><div class="wrap">
+<a class="back-link" href="index.html#novidades">← CONTINUAR A COMPRAR</a>
+<div id="produtoContainer" aria-live="polite"><div class="product-loading">A carregar produto…</div></div>
+</div></main>
+<div class="image-modal" id="imageModal" aria-hidden="true" role="dialog" aria-label="Visualização ampliada"><button class="image-modal-close" type="button" aria-label="Fechar">×</button><button class="image-modal-nav prev" type="button" aria-label="Imagem anterior">←</button><img id="modalImage" alt=""><button class="image-modal-nav next" type="button" aria-label="Imagem seguinte">→</button><p id="modalCounter"></p></div>
+<footer class="site-footer"><div class="wrap footer-bottom"><span>© 2026 BLCKSI</span><span>MOÇAMBIQUE</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../styles/js/supabase-config.js"></script>
+<script src="../styles/js/cart.js?v=blcksi-v5"></script>
+<script src="../styles/js/analytics.js?v=blcksi-v5"></script>
+<script src="../styles/js/main.js?v=blcksi-v5"></script>
+<script src="../styles/js/produto.js?v=blcksi-v5"></script>
+</body></html>

@@ -26,25 +26,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  var toggle = document.querySelector(".menu-toggle");
-  var nav = document.querySelector(".nav-links");
-
-  if (toggle && nav) {
-    toggle.addEventListener("click", function () {
-      var isOpen = nav.style.display === "flex";
-      nav.style.display = isOpen ? "none" : "flex";
-      nav.style.flexDirection = "column";
-      nav.style.position = "absolute";
-      nav.style.top = "56px";
-      nav.style.right = "24px";
-      nav.style.background = "var(--bg-card)";
-      nav.style.border = "0.5px solid var(--border-strong)";
-      nav.style.borderRadius = "8px";
-      nav.style.padding = "12px 20px";
-      nav.style.gap = "12px";
-    });
-  }
-
   var thumbs = document.querySelectorAll("#galleryThumbs button");
   var mainImg = document.getElementById("galleryMainImg");
   if (thumbs.length && mainImg) {
@@ -177,4 +158,31 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+});
+
+// BLCKSI Store v2 — categorias administráveis.
+// Nesta fase funcionam a partir desta configuração local. Na integração Supabase,
+// a fonte será substituída pela tabela `categories`, sem alterar o HTML da homepage.
+window.BLCKSI_CATEGORIES = window.BLCKSI_CATEGORIES || [
+  { name: "Camisetas", description: "Peças essenciais BLCKSI", url: "camisa.html" },
+  { name: "Camisolas", description: "Drops e novas silhuetas", url: "camisola.html" },
+  { name: "Calças", description: "Streetwear em construção", url: "calca.html" },
+  { name: "Bonés", description: "Acessórios de identidade", url: "bone.html" },
+  { name: "Acessórios", description: "Completa o teu look", url: "acessorio.html" },
+  { name: "Coleções", description: "Edições e lançamentos especiais", url: "preto.html" }
+];
+
+function renderBLCKSICategories(categories) {
+  var grid = document.getElementById("categoriesGrid");
+  if (!grid) return;
+  grid.innerHTML = categories.map(function (category, index) {
+    return '<a class="category-card" href="' + category.url + '">' +
+      '<span class="category-number">' + String(index + 1).padStart(2, "0") + '</span>' +
+      '<div><h3>' + category.name + '</h3><p>' + category.description + '</p></div>' +
+      '<span class="category-arrow">↗</span></a>';
+  }).join("");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  renderBLCKSICategories(window.BLCKSI_CATEGORIES);
 });

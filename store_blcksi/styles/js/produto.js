@@ -1,135 +1,33 @@
-(function () {
-  var params = new URLSearchParams(window.location.search);
-  var id = params.get("id");
-  var produto = PRODUTOS.find(function (p) { return p.id === id; });
-
-  var container = document.getElementById("produtoContainer");
-  if (!container) { return; }
-
-  if (!produto) {
-    container.innerHTML = '<div class="catalog-empty">produto não encontrado. <a href="index.html">voltar ao início</a></div>';
-    return;
+(function(){
+  var params=new URLSearchParams(location.search), slug=params.get('slug'), container=document.getElementById('produtoContainer');
+  var fallback={
+    'blcksi-t-shirt-01':{name:'STAY WEIRD',price:950,description:'T-shirt BLCKSI com identidade streetwear e expressão gráfica. Escolhe o teu tamanho.',category:'T-shirt · BLCKSI',images:['../styles/assets/img/camisa-02.webp','../styles/assets/img/camisa-01.webp']},
+    'blcksi-t-shirt-02':{name:'CULTURE OF AMBITION',price:950,description:'Uma peça BLCKSI para quem constrói o próprio caminho. Corte urbano e presença gráfica.',category:'T-shirt · BLCKSI',images:['../styles/assets/img/camisa-03.webp','../styles/assets/img/camisa-04.webp']},
+    'blcksi-t-shirt-03':{name:'VIBIN',price:950,description:'T-shirt BLCKSI com uma estética descontraída e urbana. Escolhe o teu tamanho.',category:'T-shirt · BLCKSI',images:['../styles/assets/img/camisa-59.webp','../styles/assets/img/camisa-06.webp']},
+    'blcksi-t-shirt-04':{name:'NANAMI KENTO',price:1200,description:'T-shirt gráfica BLCKSI inspirada na cultura anime e no streetwear.',category:'T-shirt · BLCKSI',images:['../styles/assets/img/camisa-07.webp','../styles/assets/img/camisa-08.webp']}
+  };
+  function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function money(v){return v==null?'Preço sob consulta':Number(v).toLocaleString('pt-MZ')+' MT'}
+  function render(p){
+    if(window.BLCKSIAnalytics)window.BLCKSIAnalytics.track('product_view',{slug:slug,category:p.category||''});
+    var images=p.images&&p.images.length?p.images:['../styles/assets/img/camisa-01.webp'];
+    document.title=p.name+' — BLCKSI';
+    container.innerHTML='<div class="product-detail-v4"><div class="product-gallery"><button class="gallery-main-button" id="openGallery" type="button" aria-label="Ampliar imagem"><img id="galleryMain" src="'+esc(images[0])+'" alt="'+esc(p.name)+'"><span>⌕ AMPLIAR</span></button><div class="gallery-thumbnails">'+images.map(function(src,i){return '<button class="gallery-thumb '+(!i?'active':'')+'" type="button" data-index="'+i+'"><img src="'+esc(src)+'" alt="'+esc(p.name)+' vista '+(i+1)+'"></button>'}).join('')+'</div></div><div class="product-info-v4"><p class="eyebrow">'+esc(p.category||'BLCKSI')+'</p><h1>'+esc(p.name)+'</h1><div class="product-price-v4">'+money(p.price)+'</div><p class="product-description-v4">'+esc(p.description||'Sem descrição disponível.')+'</p><div class="product-options"><span>TAMANHO</span><div class="size-options" id="sizeOptions"><button type="button">S</button><button type="button" class="active">M</button><button type="button">L</button><button type="button">XL</button></div></div><button class="btn btn-light add-cart-btn" id="addCart" type="button">ADICIONAR AO CARRINHO</button><p class="product-note">As imagens podem ser ampliadas para visualizar melhor os detalhes.</p></div></div>';
+    var active=0, main=document.getElementById('galleryMain'), thumbs=[].slice.call(document.querySelectorAll('.gallery-thumb'));
+    function setImage(i){active=(i+images.length)%images.length;main.src=images[active];thumbs.forEach(function(t,n){t.classList.toggle('active',n===active)})}
+    thumbs.forEach(function(t){t.addEventListener('click',function(){setImage(+t.dataset.index)})});
+    document.querySelectorAll('#sizeOptions button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#sizeOptions button').forEach(function(x){x.classList.remove('active')});b.classList.add('active')})});
+    var modal=document.getElementById('imageModal'), modalImg=document.getElementById('modalImage'), counter=document.getElementById('modalCounter');
+    function open(){modal.classList.add('is-open');modal.setAttribute('aria-hidden','false');modalImg.src=images[active];modalImg.alt=p.name;counter.textContent=(active+1)+' / '+images.length;document.body.style.overflow='hidden'}
+    function close(){modal.classList.remove('is-open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+    function modalSet(i){setImage(i);modalImg.src=images[active];counter.textContent=(active+1)+' / '+images.length}
+    document.getElementById('openGallery').addEventListener('click',open);modal.querySelector('.image-modal-close').addEventListener('click',close);modal.querySelector('.prev').addEventListener('click',function(){modalSet(active-1)});modal.querySelector('.next').addEventListener('click',function(){modalSet(active+1)});modal.addEventListener('click',function(e){if(e.target===modal)close()});document.addEventListener('keydown',function(e){if(!modal.classList.contains('is-open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')modalSet(active-1);if(e.key==='ArrowRight')modalSet(active+1)});
+    document.getElementById('addCart').addEventListener('click',function(){var sizeEl=document.querySelector('#sizeOptions button.active');var added=window.BLCKSICart&&window.BLCKSICart.add({slug:slug,name:p.name,price:p.price,image:images[0],size:sizeEl?sizeEl.textContent.trim():''});if(added){var b=document.getElementById('addCart');b.textContent='ADICIONADO ✓';setTimeout(function(){b.textContent='ADICIONAR AO CARRINHO'},1400);if(window.BLCKSIAnalytics)window.BLCKSIAnalytics.track('add_to_cart',{slug:slug,price:p.price})}else{alert('Não foi possível adicionar. Tente novamente.')}});
   }
-
-  var icon = CATEGORIA_ICON[produto.categoria] || "ti-photo";
-  var categoriaLabel = CATEGORIA_LABEL[produto.categoria] || produto.categoria;
-  document.title = produto.nome + " — BLCKSI";
-
-  var imagens = (produto.imagens && produto.imagens.some(function (i) { return i; }))
-    ? produto.imagens.filter(function (i) { return i; })
-    : [];
-
-  var mainImgHtml = imagens.length
-    ? '<img id="galleryMainImg" src="' + imagens[0] + '" alt="' + produto.nome + '">'
-    : iconSVG(icon, 'style="font-size:40px; color:var(--text-dim);" id="galleryMainImg"');
-
-  var thumbsHtml = imagens.length
-    ? imagens.map(function (src, i) {
-        return '<button class="' + (i === 0 ? "active" : "") + '" data-img="' + src + '"><img src="' + src + '" alt="miniatura" loading="lazy"></button>';
-      }).join("")
-    : "";
-
-  var sizeHtml = "";
-  if (produto.tamanhos && produto.tamanhos.length) {
-    sizeHtml =
-      '<div class="option-group">' +
-        '<div class="option-label">TAMANHO</div>' +
-        '<div class="size-options" id="sizeOptions">' +
-          produto.tamanhos.map(function (t, i) {
-            return '<button class="' + (i === 0 ? "active" : "") + '" data-size="' + t + '">' + t + '</button>';
-          }).join("") +
-        '</div>' +
-      '</div>';
+  async function load(){
+    var cfg=window.BLCKSI_SUPABASE||{}, ready=cfg.url&&cfg.key&&!cfg.url.includes('COLOQUE_AQUI');
+    if(ready&&window.supabase&&slug){try{var c=window.supabase.createClient(cfg.url,cfg.key);var r=await c.from('products').select('name,slug,description,price,category:categories(name),product_images(image_url,position)').eq('slug',slug).eq('is_active',true).single();if(!r.error&&r.data){var imgs=(r.data.product_images||[]).sort(function(a,b){return(a.position||0)-(b.position||0)}).map(function(i){return i.image_url});return render({name:r.data.name,description:r.data.description,price:r.data.price,category:r.data.category&&r.data.category.name,images:imgs})}}catch(e){console.warn(e)}}
+    if(fallback[slug])render(fallback[slug]);else container.innerHTML='<div class="catalog-empty">Produto não encontrado. <a href="index.html">Voltar à loja</a></div>';
   }
-
-  var temGsm = produto.categoria === "camisa" && produto.preco === 1200;
-  var gsmPrecos = { "180": 950, "250": 3400, "300": 3800 };
-  var gsmHtml = temGsm
-    ? '<div class="option-group">' +
-        '<div class="option-label">GSM</div>' +
-        '<div class="size-options" id="gsmOptions">' +
-          '<button type="button" data-gsm="180">180-GSM</button>' +
-          '<button type="button" data-gsm="250">250-GSM</button>' +
-          '<button type="button" data-gsm="300">300-GSM</button>' +
-        '</div>' +
-      '</div>'
-    : "";
-
-  container.innerHTML =
-    '<div class="breadcrumb">' +
-      '<a href="index.html">início</a> / <a href="' + produto.categoria + '.html">' + categoriaLabel.toLowerCase() + '</a> / ' + produto.nome +
-    '</div>' +
-    '<div class="product-layout">' +
-      '<div>' +
-        '<div class="gallery-main">' + mainImgHtml + '</div>' +
-        (thumbsHtml ? '<div class="gallery-thumbs" id="galleryThumbs">' + thumbsHtml + '</div>' : '') +
-      '</div>' +
-      '<div>' +
-        '<div class="product-category">' + categoriaLabel.toUpperCase() + '</div>' +
-        '<h1 class="product-name">' + produto.nome + '</h1>' +
-        '<div class="product-price" id="productPrice">' + formatarPreco(produto.preco) + '</div>' +
-        gsmHtml +
-        sizeHtml +
-        '<button class="btn" id="buyBtn" style="width:100%;">comprar</button>' +
-        '<p class="product-description">' + produto.descricao + '</p>' +
-      '</div>' +
-    '</div>';
-
-  var relatedGrid = document.getElementById("relatedGrid");
-  if (relatedGrid) {
-    var mesmaCategoria = PRODUTOS.filter(function (p) {
-      return p.categoria === produto.categoria && p.id !== produto.id;
-    });
-
-    // baralha (Fisher-Yates) para mostrar peças diferentes a cada visita
-    for (var i = mesmaCategoria.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = mesmaCategoria[i];
-      mesmaCategoria[i] = mesmaCategoria[j];
-      mesmaCategoria[j] = tmp;
-    }
-
-    var relacionados = mesmaCategoria.slice(0, 3);
-
-    if (relacionados.length === 0) {
-      relatedGrid.parentElement.style.display = "none";
-    } else {
-      relatedGrid.innerHTML = relacionados.map(function (p) {
-        var img = p.imagens && p.imagens[0]
-          ? '<img src="' + p.imagens[0] + '" alt="' + p.nome + '" loading="lazy">'
-          : iconSVG(icon, 'style="font-size:24px; color:var(--text-dim);"');
-        return '<a class="related-card" href="produto.html?id=' + encodeURIComponent(p.id) + '">' + img + '</a>';
-      }).join("");
-    }
-  }
-
-  var selectedGsm = "";
-  var priceEl = document.getElementById("productPrice");
-  var gsmButtons = document.querySelectorAll("#gsmOptions button");
-  if (gsmButtons.length) {
-    gsmButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        gsmButtons.forEach(function (b) { b.classList.remove("active"); });
-        btn.classList.add("active");
-        selectedGsm = btn.getAttribute("data-gsm");
-        if (priceEl) { priceEl.textContent = formatarPreco(gsmPrecos[selectedGsm]); }
-      });
-    });
-  }
-
-  var buyBtn = document.getElementById("buyBtn");
-  if (buyBtn) {
-    buyBtn.addEventListener("click", function () {
-      if (temGsm && !selectedGsm) {
-        alert("Escolha o GSM da camisete antes de continuar.");
-        return;
-      }
-      var tamanhoAtivo = document.querySelector("#sizeOptions button.active");
-      var tamanho = tamanhoAtivo ? tamanhoAtivo.getAttribute("data-size") : "";
-      var url = "pagamento.html?id=" + encodeURIComponent(produto.id);
-      if (tamanho) { url += "&tamanho=" + encodeURIComponent(tamanho); }
-      if (selectedGsm) { url += "&gsm=" + encodeURIComponent(selectedGsm); }
-      window.location.href = url;
-    });
-  }
+  load();
 })();
