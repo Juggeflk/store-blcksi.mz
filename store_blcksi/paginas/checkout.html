@@ -5,139 +5,102 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Checkout — BLCKSI</title>
-  <link rel="stylesheet" href="../styles/css/main.css?v=blcksi-v71">
+  <link rel="stylesheet" href="../styles/css/main.css?v=blcksi-v72">
 </head>
-
 <body>
 
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <a href="index.html" class="logo">
-        <strong>BLK</strong>
-        <span>BLCKSI</span>
-      </a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="index.html" class="logo">
+      <strong>BLK</strong><span>BLCKSI</span>
+    </a>
+    <a class="cart-link" href="carrinho.html">← VOLTAR AO CARRINHO</a>
+  </div>
+</header>
 
-      <a class="cart-link" href="carrinho.html">
-        ← VOLTAR AO CARRINHO
-      </a>
+<main class="product-page">
+  <div class="wrap checkout-wrap">
+    <p class="eyebrow">BLCKSI / FINALIZAÇÃO</p>
+    <h1 class="cart-title">FINALIZAR PEDIDO</h1>
+
+    <div class="checkout-grid">
+
+      <form id="checkoutForm" class="checkout-form">
+
+        <label>
+          Nome completo
+          <input name="name" required maxlength="120" autocomplete="name">
+        </label>
+
+        <label>
+          Contacto WhatsApp
+          <input name="phone" required type="tel" maxlength="30"
+                 autocomplete="tel" placeholder="84 xxx xxxx">
+        </label>
+
+        <label>
+          Cidade / Local de entrega
+          <input name="address" required maxlength="240"
+                 autocomplete="street-address">
+        </label>
+
+        <label>
+          Método de pagamento
+          <select name="payment_method" required>
+            <option value="M-Pesa">M-Pesa — Vodacom</option>
+            <option value="e-Mola">e-Mola — Movitel</option>
+          </select>
+        </label>
+
+        <div id="blcksiPaymentDetails" class="payment-hint" aria-live="polite">
+          <b>Dados para pagamento</b>
+          <p>Os dados de pagamento serão apresentados aqui.</p>
+        </div>
+
+        <label>
+          Notas (opcional)
+          <textarea name="notes" maxlength="500" rows="3"></textarea>
+        </label>
+
+        <div class="payment-hint">
+          <b>Pagamento por confirmação no WhatsApp</b>
+          <p>
+            Depois de criar o pedido, o WhatsApp será aberto com o resumo.
+            Anexa o comprovativo na conversa.
+          </p>
+          <p>
+            O pedido permanece pendente até a equipa BLCKSI confirmar
+            o pagamento.
+          </p>
+          <p>Métodos disponíveis: M-Pesa e e-Mola.</p>
+        </div>
+
+        <button class="btn btn-light" type="submit" id="placeOrder">
+          CRIAR PEDIDO E CONTINUAR NO WHATSAPP
+        </button>
+
+        <p id="checkoutMessage" role="status" class="cart-small"></p>
+
+      </form>
+
+      <aside class="cart-summary">
+        <h2>O TEU PEDIDO</h2>
+        <div id="checkoutLines"></div>
+        <div class="cart-total-row">
+          <span>Total</span>
+          <strong id="checkoutTotal">—</strong>
+        </div>
+      </aside>
+
     </div>
-  </header>
+  </div>
+</main>
 
-  <main class="product-page">
-    <div class="wrap checkout-wrap">
-
-      <p class="eyebrow">BLCKSI / FINALIZAÇÃO</p>
-
-      <h1 class="cart-title">FINALIZAR PEDIDO</h1>
-
-      <div class="checkout-grid">
-
-        <form id="checkoutForm" class="checkout-form">
-
-          <label>
-            Nome completo
-            <input
-              name="name"
-              required
-              maxlength="120"
-              autocomplete="name"
-            >
-          </label>
-
-          <label>
-            Contacto WhatsApp
-            <input
-              name="phone"
-              required
-              type="tel"
-              maxlength="30"
-              autocomplete="tel"
-              placeholder="84 xxx xxxx"
-            >
-          </label>
-
-          <label>
-            Cidade / Local de entrega
-            <input
-              name="address"
-              required
-              maxlength="240"
-              autocomplete="street-address"
-            >
-          </label>
-
-          <label>
-            Método de pagamento
-            <select name="payment_method" required>
-              <option value="M-Pesa">M-Pesa — Vodacom</option>
-              <option value="e-Mola">e-Mola — Movitel</option>
-            </select>
-          </label>
-
-          <div class="payment-hint">
-            <b>Pagamento por confirmação no WhatsApp</b>
-
-            <p>
-              Seleciona o método de pagamento para visualizar
-              os dados do destinatário.
-            </p>
-
-            <p>
-              Depois de efetuar o pagamento, envia o comprovativo
-              pelo WhatsApp. O pedido permanece pendente até
-              a equipa BLCKSI confirmar o pagamento.
-            </p>
-          </div>
-
-          <!-- O checkout.js apresenta aqui os dados do método escolhido -->
-
-          <label>
-            Notas (opcional)
-            <textarea
-              name="notes"
-              maxlength="500"
-              rows="3"
-            ></textarea>
-          </label>
-
-          <button
-            class="btn btn-light"
-            type="submit"
-            id="placeOrder"
-          >
-            CRIAR PEDIDO E CONTINUAR NO WHATSAPP
-          </button>
-
-          <p
-            id="checkoutMessage"
-            role="status"
-            class="cart-small"
-          ></p>
-
-        </form>
-
-        <aside class="cart-summary">
-
-          <h2>O TEU PEDIDO</h2>
-
-          <div id="checkoutLines"></div>
-
-          <div class="cart-total-row">
-            <span>Total</span>
-            <strong id="checkoutTotal">—</strong>
-          </div>
-
-        </aside>
-
-      </div>
-    </div>
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../styles/js/supabase-config.js"></script>
-  <script src="../styles/js/cart.js?v=blcksi-v5"></script>
-  <script src="../styles/js/checkout.js?v=blcksi-v6"></script>
-  <script src="../styles/js/site-ui.js?v=blcksi-v71"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../styles/js/supabase-config.js"></script>
+<script src="../styles/js/cart.js?v=blcksi-v5"></script>
+<script src="../styles/js/checkout.js?v=blcksi-v6"></script>
+<script src="../styles/js/site-ui.js?v=blcksi-v72"></script>
 
 </body>
 </html>
