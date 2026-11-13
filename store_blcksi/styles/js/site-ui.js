@@ -50,4 +50,41 @@ document.addEventListener("keydown", function (event) {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMenus);
   else initMenus();
+  
+  // Fechar menus móveis ao tocar fora ou pressionar Escape
+  document.addEventListener('click', function (event) {
+    document.querySelectorAll('.site-header .nav-links.is-open').forEach(function (nav) {
+      var header = nav.closest('.site-header');
+      var button = header && header.querySelector('.menu-toggle');
+
+      if (!nav.contains(event.target) &&
+          !(button && button.contains(event.target))) {
+        nav.classList.remove('is-open');
+
+        if (button) {
+          button.classList.remove('is-active');
+          button.setAttribute('aria-expanded', 'false');
+          button.setAttribute('aria-label', 'Abrir menu');
+        }
+      }
+    });
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+
+    document.querySelectorAll('.site-header .nav-links.is-open').forEach(function (nav) {
+      var header = nav.closest('.site-header');
+      var button = header && header.querySelector('.menu-toggle');
+
+      nav.classList.remove('is-open');
+
+      if (button) {
+        button.classList.remove('is-active');
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-label', 'Abrir menu');
+      }
+    });
+  });
+
 })();
