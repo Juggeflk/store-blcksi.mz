@@ -87,4 +87,19 @@ document.addEventListener("keydown", function (event) {
     });
   });
 
+  // Fechar o menu ao começar a fazer scroll
+  window.addEventListener('scroll', function () {
+    document.querySelectorAll('.site-header .nav-links.is-open').forEach(function (nav) {
+      var header = nav.closest('.site-header');
+      var button = header && header.querySelector('.menu-toggle');
+
+      nav.classList.remove('is-open');
+
+      if (button) {
+        button.classList.remove('is-active');
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-label', 'Abrir menu');
+      }
+    });
+  }, { passive: true });
 })();
