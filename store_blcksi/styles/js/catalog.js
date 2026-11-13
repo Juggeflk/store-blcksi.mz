@@ -1,6 +1,13 @@
 (function () {
   var categoria = document.body.getAttribute("data-categoria");
   var grid = document.getElementById("catalogGrid");
+  // Guardar a última categoria visitada
+try {
+  localStorage.setItem("blcksi_last_category", JSON.stringify({
+    name: categoria,
+    viewedAt: Date.now()
+  }));
+} catch (e) {}
   if (!grid || !categoria) { return; }
 
   var lista = PRODUTOS.filter(function (p) { return p.categoria === categoria; });
