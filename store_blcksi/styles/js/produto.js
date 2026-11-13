@@ -9,8 +9,16 @@
   function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function money(v){return v==null?'Preço sob consulta':Number(v).toLocaleString('pt-MZ')+' MT'}
   function render(p){
-    if(window.BLCKSIAnalytics)window.BLCKSIAnalytics.track('product_view',{slug:slug,category:p.category||''});
-    var images=p.images&&p.images.length?p.images:['../styles/assets/img/camisa-01.webp'];
+    try {
+      localStorage.setItem('blcksi_last_product', JSON.stringify({
+        slug: slug,
+        name: p.name,
+        category: p.category || '',
+        viewedAt: Date.now()
+      }));
+    } catch (e) {}
+
+    if(window.BLCKSIAnalytics)window.BLCKSIAnalytics.track('product_view',{slug:slug,category:p.category||''});    var images=p.images&&p.images.length?p.images:['../styles/assets/img/camisa-01.webp'];
     document.title=p.name+' — BLCKSI';
     container.innerHTML='<div class="product-detail-v4"><div class="product-gallery"><button class="gallery-main-button" id="openGallery" type="button" aria-label="Ampliar imagem"><img id="galleryMain" src="'+esc(images[0])+'" alt="'+esc(p.name)+'"><span>⌕ AMPLIAR</span></button><div class="gallery-thumbnails">'+images.map(function(src,i){return '<button class="gallery-thumb '+(!i?'active':'')+'" type="button" data-index="'+i+'"><img src="'+esc(src)+'" alt="'+esc(p.name)+' vista '+(i+1)+'"></button>'}).join('')+'</div></div><div class="product-info-v4"><p class="eyebrow">'+esc(p.category||'BLCKSI')+'</p><h1>'+esc(p.name)+'</h1><div class="product-price-v4">'+money(p.price)+'</div><p class="product-description-v4">'+esc(p.description||'Sem descrição disponível.')+'</p><div class="product-options"><span>TAMANHO</span><div class="size-options" id="sizeOptions"><button type="button">S</button><button type="button" class="active">M</button><button type="button">L</button><button type="button">XL</button></div></div><button class="btn btn-light add-cart-btn" id="addCart" type="button">ADICIONAR AO CARRINHO</button><p class="product-note">As imagens podem ser ampliadas para visualizar melhor os detalhes.</p></div></div>';
     var active=0, main=document.getElementById('galleryMain'), thumbs=[].slice.call(document.querySelectorAll('.gallery-thumb'));
