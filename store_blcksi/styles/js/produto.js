@@ -28,6 +28,23 @@
     var modal=document.getElementById('imageModal'), modalImg=document.getElementById('modalImage'), counter=document.getElementById('modalCounter');
     function open(){modal.classList.add('is-open');modal.setAttribute('aria-hidden','false');modalImg.src=images[active];modalImg.alt=p.name;counter.textContent=(active+1)+' / '+images.length;document.body.style.overflow='hidden'}
     function close(){modal.classList.remove('is-open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+    // Fechar ao deslizar para baixo no fundo da imagem
+var touchStartY = 0;
+
+modal.addEventListener('touchstart', function(e) {
+  if (e.target !== modal) return;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+modal.addEventListener('touchend', function(e) {
+  if (e.target !== modal) return;
+
+  var touchEndY = e.changedTouches[0].clientY;
+
+  if (touchEndY - touchStartY > 80) {
+    close();
+  }
+}, { passive: true });
     function modalSet(i){setImage(i);modalImg.src=images[active];counter.textContent=(active+1)+' / '+images.length}
     document.getElementById('openGallery').addEventListener('click',open);modal.querySelector('.image-modal-close').addEventListener('click',close);modal.querySelector('.prev').addEventListener('click',function(){modalSet(active-1)});modal.querySelector('.next').addEventListener('click',function(){modalSet(active+1)});modal.addEventListener('click',function(e){if(e.target===modal)close()});document.addEventListener('keydown',function(e){if(!modal.classList.contains('is-open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')modalSet(active-1);if(e.key==='ArrowRight')modalSet(active+1)});
     document.getElementById('addCart').addEventListener('click',function(){var sizeEl=document.querySelector('#sizeOptions button.active');var added=window.BLCKSICart&&window.BLCKSICart.add({slug:slug,name:p.name,price:p.price,image:images[0],size:sizeEl?sizeEl.textContent.trim():''});if(added){var b=document.getElementById('addCart');b.textContent='ADICIONADO ✓';setTimeout(function(){b.textContent='ADICIONAR AO CARRINHO'},1400);if(window.BLCKSIAnalytics)window.BLCKSIAnalytics.track('add_to_cart',{slug:slug,price:p.price})}else{alert('Não foi possível adicionar. Tente novamente.')}});
