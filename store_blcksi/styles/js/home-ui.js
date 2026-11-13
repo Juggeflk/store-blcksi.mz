@@ -62,8 +62,6 @@
       renderDrawer();
     });
     window.addEventListener('blcksi:cart-updated', renderDrawer);
-    var menu = document.querySelector('.menu-toggle'), nav = document.querySelector('.nav-links');
-    if (menu && nav) menu.addEventListener('click', function () { var open = nav.classList.toggle('is-open'); menu.classList.toggle('is-active', open); menu.setAttribute('aria-expanded', String(open)); });
-    document.querySelectorAll('.nav-links a').forEach(function (link) { link.addEventListener('click', function () { if (nav) nav.classList.remove('is-open'); if (menu) { menu.classList.remove('is-active'); menu.setAttribute('aria-expanded', 'false'); } }); });
+    
   });
 })();
