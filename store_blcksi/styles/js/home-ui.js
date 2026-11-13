@@ -36,14 +36,97 @@
     }).join('');
   }
   function openCart() { renderDrawer(); openPanel(drawer); }
-  function searchProducts(query) {
-    var root = document.getElementById('searchResults');
-    var cards = Array.prototype.slice.call(document.querySelectorAll('#homeProducts .product-card'));
-    var q = query.trim().toLocaleLowerCase('pt');
-    if (!q) { root.innerHTML = '<p>Pesquisa por nome ou categoria.</p>'; return; }
-    var matches = cards.filter(function (card) { return card.textContent.toLocaleLowerCase('pt').indexOf(q) !== -1; }).slice(0, 6);
-    root.innerHTML = matches.length ? matches.map(function (card) { return '<a class="search-result" href="' + esc(card.getAttribute('href')) + '">' + card.querySelector('img').outerHTML + '<span><strong>' + esc(card.querySelector('h3') ? card.querySelector('h3').textContent : card.textContent) + '</strong><small>' + esc(card.querySelector('.product-meta p') ? card.querySelector('.product-meta p').textContent : 'BLCKSI') + '</small></span><b>↗</b></a>'; }).join('') : '<p class="search-no-results">Não encontrámos resultados na seleção inicial. <a href="camisa.html">Explorar todos os produtos ↗</a></p>';
+  
+function searchProducts(query) {
+  var root = document.getElementById('searchResults');
+  if (!root) return;
+
+  var products = window.BLCKSI_PRODUCTS || [];
+  var q = String(query || '').trim().toLocaleLowerCase('pt');
+
+  function readHistory(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || 'null');
+    } catch (e) {
+      return null;
+    }
   }
+
+  var lastProduct = readHistory('blcksi_last_product');
+  var lastCategory = readHistory('blcksi_last_category');
+
+  function normalize(value) {
+    return String(value || '').toLocaleLowerCase('pt');
+  }
+
+  var ranked = products.map(function (p) {
+    var name = normalize(p.name);
+    var category = normalize(p.category);
+    var description = normalize(p.description);
+    var score = 0;
+
+    if (q) {
+      if (name === q) score += 100;
+      else if (name.indexOf(q) !== -1) score += 60;
+
+      if (category.indexOf(q) !== -1) score += 35;
+      if (description.indexOf(q) !== -1) score += 15;
+    }
+
+    if (lastProduct && p.slug === lastProduct.slug) {
+      score += q ? 2 : 0;
+    }
+
+    if (lastProduct && lastProduct.category &&
+        category === normalize(lastProduct.category)) {
+      score += 25;
+    }
+
+    if (lastCategory && category.indexOf(normalize(lastCategory.name)) !== -1) {
+      score += 20;
+    }
+
+    return { product: p, score: score };
+  });
+
+  if (q) {
+    ranked = ranked.filter(function (item) {
+      var p = item.product;
+      return normalize(p.name).indexOf(q) !== -1 ||
+        normalize(p.category).indexOf(q) !== -1 ||
+        normalize(p.description).indexOf(q) !== -1;
+    });
+  }
+
+  ranked.sort(function (a, b) {
+    return b.score - a.score;
+  });
+
+  var results = ranked.slice(0, 6);
+
+  if (!products.length) {
+    root.innerHTML = '<p>A carregar os produtos da loja...</p>';
+    return;
+  }
+
+  if (!results.length) {
+    root.innerHTML = '<p class="search-no-results">Não encontrámos este produto. Experimenta outro nome ou categoria.</p>';
+    return;
+  }
+
+  root.innerHTML = results.map(function (item) {
+    var p = item.product;
+    var image = p.image_url || '../styles/assets/img/camisa-01.webp';
+    var url = 'produto.html?slug=' + encodeURIComponent(p.slug || '');
+
+    return '<a class="search-result" href="' + esc(url) + '">' +
+      '<img src="' + esc(image) + '" alt="' + esc(p.name) + '">' +
+      '<span><strong>' + esc(p.name) + '</strong>' +
+      '<small>' + esc(p.category || 'BLCKSI') + '</small></span>' +
+      '<b>' + money(p.price) + '</b></a>';
+  }).join('');
+}
+
   document.addEventListener('DOMContentLoaded', function () {
     var cartButton = document.getElementById('openCart');
     if (cartButton) cartButton.addEventListener('click', openCart);
