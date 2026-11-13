@@ -52,7 +52,24 @@ var productResult = await client.from("products")
   .eq("is_active", true)
   .order("created_at", { ascending: false });
       if (!productResult.error && Array.isArray(productResult.data) && productResult.data.length) {
-        renderProducts(productResult.data.map(function (p) {
+      window.BLCKSI_PRODUCTS = productResult.data.map(function (p) {
+  var images = (p.product_images || []).sort(function (a, b) {
+    return (a.position || 0) - (b.position || 0);
+  });
+
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.description || "",
+    price: p.price,
+    is_new: p.is_new,
+    category_id: p.category_id,
+    category: p.category && p.category.name,
+    category_slug: p.category && p.category.slug,
+    image_url: images[0] && images[0].image_url
+  };
+});  renderProducts(productResult.data.map(function (p) {
           var images = (p.product_images || []).sort(function(a,b){ return (a.position||0)-(b.position||0); });
           return {
             name: p.name, slug: p.slug, price: p.price, is_new: p.is_new,
