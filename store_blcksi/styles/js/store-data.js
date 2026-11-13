@@ -47,7 +47,10 @@
         if (categories.length) renderBLCKSICategories(categories);
       }
 
-      var productResult = await client.from("products").select("name,slug,price,is_new,category:categories(name),product_images(image_url,position)").eq("is_active", true).order("created_at", { ascending: false }).limit(4);
+var productResult = await client.from("products")
+  .select("id,name,slug,description,price,is_new,category_id,category:categories(name,slug),product_images(image_url,position)")
+  .eq("is_active", true)
+  .order("created_at", { ascending: false });
       if (!productResult.error && Array.isArray(productResult.data) && productResult.data.length) {
         renderProducts(productResult.data.map(function (p) {
           var images = (p.product_images || []).sort(function(a,b){ return (a.position||0)-(b.position||0); });
