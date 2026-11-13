@@ -187,27 +187,51 @@ document.addEventListener("DOMContentLoaded", function () {
   renderBLCKSICategories(window.BLCKSI_CATEGORIES);
 });
 
-/* BLCKSI V7.1 — menu móvel nas páginas internas */
+/* BLCKSI — menu móvel com fecho ao tocar fora */
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".site-header .menu-toggle").forEach(function (button) {
     if (button.dataset.blcksiMenuReady === "true") return;
+
     var header = button.closest(".site-header");
     var nav = header ? header.querySelector(".nav-links") : null;
     if (!nav) return;
+
     button.dataset.blcksiMenuReady = "true";
     button.setAttribute("aria-expanded", "false");
-    button.addEventListener("click", function () {
+
+    function closeMenu() {
+      nav.classList.remove("is-open");
+      button.classList.remove("is-active");
+      button.setAttribute("aria-expanded", "false");
+      button.setAttribute("aria-label", "Abrir menu");
+    }
+
+    button.addEventListener("click", function (event) {
+      event.stopPropagation();
+
       var opened = nav.classList.toggle("is-open");
       button.classList.toggle("is-active", opened);
       button.setAttribute("aria-expanded", String(opened));
       button.setAttribute("aria-label", opened ? "Fechar menu" : "Abrir menu");
     });
+
+    nav.addEventListener("click", function (event) {
+      event.stopPropagation();
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!nav.classList.contains("is-open")) return;
+      if (header.contains(event.target)) return;
+      closeMenu();
+    });
+
     nav.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("click", function () {
-        nav.classList.remove("is-open");
-        button.classList.remove("is-active");
-        button.setAttribute("aria-expanded", "false");
-      });
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeMenu();
     });
   });
+});
 });
