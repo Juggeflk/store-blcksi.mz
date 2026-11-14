@@ -42,16 +42,18 @@
     var details = paymentDetails[method];
 
     if (!details) {
-      paymentBox.innerHTML = '<b>Método indisponível</b>';
+      paymentBox.innerHTML = '<b style="color:#fff;">Método indisponível</b>';
       return;
     }
 
     paymentBox.innerHTML =
-      '<b>Dados para pagamento — ' + method + '</b>' +
-      '<p>Operadora: ' + details.operator + '</p>' +
-      '<p>Número: <strong>' + details.number + '</strong></p>' +
-      '<p>Titular: ' + details.holder + '</p>' +
-      '<p>Confirma o nome do destinatário antes de pagar.</p>';
+      '<div style="color:#fff;">' +
+        '<b style="color:#fff;">Dados para pagamento — ' + method + '</b>' +
+        '<p style="color:#fff;">Operadora: ' + details.operator + '</p>' +
+        '<p style="color:#fff;">Número: <strong style="color:#fff;font-size:18px;">' + details.number + '</strong></p>' +
+        '<p style="color:#fff;">Titular: <strong style="color:#fff;">' + details.holder + '</strong></p>' +
+        '<p style="color:#fff;">Confirma o nome do destinatário antes de pagar.</p>' +
+      '</div>';
   }
 
   if (paymentSelect) {
