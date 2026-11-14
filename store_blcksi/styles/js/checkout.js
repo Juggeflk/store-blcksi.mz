@@ -7,10 +7,12 @@
 
   var items = BLCKSICart.read();
   var total = BLCKSICart.total();
+
   var lines = document.getElementById('checkoutLines');
   var totalEl = document.getElementById('checkoutTotal');
   var msg = document.getElementById('checkoutMessage');
   var btn = document.getElementById('placeOrder');
+
   var paymentSelect = form.querySelector('[name="payment_method"]');
   var paymentBox = document.getElementById('blcksiPaymentDetails');
 
@@ -42,17 +44,17 @@
     var details = paymentDetails[method];
 
     if (!details) {
-      paymentBox.innerHTML = '<b style="color:#fff;">Método indisponível</b>';
+      paymentBox.textContent = 'Método indisponível';
       return;
     }
 
     paymentBox.innerHTML =
       '<div style="color:#fff;">' +
-        '<b style="color:#fff;">Dados para pagamento — ' + method + '</b>' +
-        '<p style="color:#fff;">Operadora: ' + details.operator + '</p>' +
-        '<p style="color:#fff;">Número: <strong style="color:#fff;font-size:18px;">' + details.number + '</strong></p>' +
-        '<p style="color:#fff;">Titular: <strong style="color:#fff;">' + details.holder + '</strong></p>' +
-        '<p style="color:#fff;">Confirma o nome do destinatário antes de pagar.</p>' +
+      '<b>Dados para pagamento — ' + method + '</b>' +
+      '<p>Operadora: ' + details.operator + '</p>' +
+      '<p>Número: <strong>' + details.number + '</strong></p>' +
+      '<p>Titular: <strong>' + details.holder + '</strong></p>' +
+      '<p>Confirma o nome do destinatário antes de pagar.</p>' +
       '</div>';
   }
 
@@ -99,8 +101,7 @@
     var customer = {
       name: String(data.get('name') || '').trim(),
       phone: String(data.get('phone') || '').trim(),
-      address: String(data.get('address') || '').trim(),
-      notes: String(data.get('notes') || '').trim()
+      address: String(data.get('address') || '').trim()
     };
 
     if (!customer.name || !customer.phone || !customer.address) {
@@ -126,14 +127,11 @@
 
     try {
       var payload = {
-        customer_name: customer.name,
-        customer_phone: customer.phone,
-        delivery_address: customer.address,
-        notes: customer.notes,
+        customer: customer,
+        notes: String(data.get('notes') || '').trim(),
         payment_method: method,
         items: items.map(function (item) {
           return {
-            product_id: item.product_id || item.id,
             slug: item.slug || item.product_slug,
             size: item.size || null,
             quantity: Number(item.quantity || 1)
@@ -146,11 +144,8 @@
       });
 
       if (result.error) {
-        throw new Error(
-          result.data && result.data.error
-            ? result.data.error
-            : 'Não foi possível criar o pedido.'
-        );
+        var serverError = result.data && result.data.error;
+        throw new Error(serverError || result.error.message || 'Não foi possível criar o pedido.');
       }
 
       var order = result.data || {};
@@ -183,7 +178,7 @@
         'Contacto: ' + customer.phone + '\n' +
         'Entrega: ' + customer.address + '\n\n' +
         'PRODUTOS:\n' + productLines + '\n\n' +
-        'TOTAL: ' + money(total) + '\n\n' +
+        'TOTAL: ' + money(order.total) + '\n\n' +
         'PAGAMENTO:\n' +
         'Método: ' + method + '\n' +
         'Operadora: ' + details.operator + '\n' +
@@ -195,9 +190,8 @@
         'Vou anexar o comprovativo de pagamento nesta conversa.\n\n' +
         'Atenção: pagamentos realizados depois da expiração precisam de verificação da equipa BLCKSI.';
 
-      if (customer.notes) {
-        text += '\n\nNotas: ' + customer.notes;
-      }
+      var notes = String(data.get('notes') || '').trim();
+      if (notes) text += '\n\nNotas: ' + notes;
 
       var whatsapp =
         'https://wa.me/258849220801?text=' +
