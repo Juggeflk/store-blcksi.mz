@@ -27,11 +27,29 @@
   }
 
   function money(v) {
-    return Number(v || 0).toLocaleString('pt-MZ') + ' MT';
+    return Number(v || 0).toLocaleString('pt-MZ', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + ' MT';
   }
 
   function date(v) {
     return v ? new Date(v).toLocaleString('pt-MZ') : '—';
+  }
+
+  function receivedStatus(order) {
+    var total = Number(order.total || 0);
+    var received = Number(order.amount_paid || 0);
+
+    if (received >= total && total > 0) {
+      return 'Pagamento integralmente recebido';
+    }
+
+    if (received > 0) {
+      return 'Pagamento parcial';
+    }
+
+    return 'Pagamento não confirmado';
   }
 
   async function access() {
@@ -78,6 +96,7 @@
 
   function renderOrder(o) {
     var locked = o.status === 'cancelled';
+
     var canMarkTest =
       !o.is_test &&
       ['pending_payment', 'payment_review', 'cancelled'].includes(o.status);
@@ -91,7 +110,9 @@
         '<p>' + esc(o.customer_name) + ' · ' +
           esc(o.customer_phone) + '</p>' +
         '<small>' + date(o.created_at) +
-          ' · ' + money(o.total) + '</small>' +
+          ' · Total: ' + money(o.total) + '</small>' +
+        '<p><small>Recebido: <strong>' +
+          money(o.amount_paid) + '</strong></small></p>' +
         '<p><small>Pagamento: ' +
           esc(o.payment_method || 'Não indicado') +
           ' · Estado: ' + esc(statusName(o.status)) +
@@ -109,12 +130,15 @@
           '<option value="completed">Concluído</option>' +
           '<option value="cancelled">Cancelado</option>' +
         '</select>' +
+
         '<button data-save-order="' + esc(o.id) + '"' +
           (locked ? ' disabled' : '') + '>GUARDAR</button>' +
+
         (canMarkTest
           ? '<button type="button" data-mark-test="' + esc(o.id) +
             '" style="margin-top:6px;">MARCAR COMO TESTE</button>'
           : '') +
+
         (locked
           ? '<small>Encomenda cancelada e bloqueada.</small>'
           : '') +
@@ -138,35 +162,57 @@
         '<small>' + esc(item.product_slug || '') +
         (item.size ? ' · Tamanho: ' + esc(item.size) : '') +
         ' · Quantidade: ' + Number(item.quantity) +
+        ' · Unitário: ' + money(item.unit_price) +
         '</small></span>' +
         '<strong>' + money(item.line_total) + '</strong>' +
       '</p>';
     }).join('');
+
+    var total = Number(order.total || 0);
+    var received = Number(order.amount_paid || 0);
+    var remaining = Math.max(total - received, 0);
 
     var box = document.getElementById('orderSearchResult');
 
     box.innerHTML =
       '<article class="admin-table">' +
         '<h2>DETALHES DA ENCOMENDA</h2>' +
+
         '<p><b>Referência:</b> ' + esc(order.order_number) + '</p>' +
         '<p><b>Cliente:</b> ' + esc(order.customer_name) + '</p>' +
         '<p><b>Contacto:</b> ' + esc(order.customer_phone) + '</p>' +
         '<p><b>Entrega:</b> ' + esc(order.delivery_address || '—') + '</p>' +
         '<p><b>Data:</b> ' + date(order.created_at) + '</p>' +
         '<p><b>Método:</b> ' + esc(order.payment_method || '—') + '</p>' +
+
         '<p><b>Referência de pagamento:</b> ' +
           esc(order.payment_reference || 'Não registada') + '</p>' +
-        '<p><b>Estado:</b> ' + esc(statusName(order.status)) + '</p>' +
-        '<p><b>Total da encomenda:</b> <strong>' +
-          money(order.total) + '</strong></p>' +
+
+        '<p><b>Estado da encomenda:</b> ' +
+          esc(statusName(order.status)) + '</p>' +
+
+        '<hr>' +
+
+        '<p><b>Total da encomenda:</b> ' +
+          '<strong>' + money(total) + '</strong></p>' +
+
+        '<p><b>Valor efetivamente recebido:</b> ' +
+          '<strong>' + money(received) + '</strong></p>' +
+
+        '<p><b>Valor ainda por receber:</b> ' +
+          '<strong>' + money(remaining) + '</strong></p>' +
+
         '<p><b>Estado do recebimento:</b> ' +
-          (['paid', 'processing', 'shipped', 'completed'].includes(order.status)
-            ? 'Pagamento registado como confirmado'
-            : 'Pagamento ainda não confirmado') +
+          esc(receivedStatus(order)) + '</p>' +
+
+        '<p class="cart-small">' +
+          'O valor recebido só é atualizado pela confirmação manual do pagamento. ' +
+          'Uma encomenda guardada não representa dinheiro recebido.' +
         '</p>' +
-        '<p class="cart-small">O total da encomenda não comprova, por si só, o valor efetivamente recebido.</p>' +
+
         '<h3>PRODUTOS</h3>' +
         (list || '<p>Sem artigos registados.</p>') +
+
         (order.notes
           ? '<h3>NOTAS</h3><p>' + esc(order.notes) + '</p>'
           : '') +
@@ -187,8 +233,8 @@
     var result = await db.from('orders')
       .select(
         'id,order_number,customer_name,customer_phone,' +
-        'delivery_address,total,status,created_at,payment_method,' +
-        'payment_reference,notes,is_test'
+        'delivery_address,total,amount_paid,status,created_at,' +
+        'payment_method,payment_reference,notes,is_test'
       )
       .ilike('order_number', '%' + term + '%')
       .limit(10);
@@ -199,7 +245,8 @@
     }
 
     if (!result.data || !result.data.length) {
-      box.textContent = 'Nenhuma encomenda encontrada com essa referência.';
+      box.textContent =
+        'Nenhuma encomenda encontrada com essa referência.';
       return;
     }
 
@@ -216,6 +263,7 @@
           var order = result.data.find(function (o) {
             return o.id === b.dataset.openOrder;
           });
+
           if (order) orderDetails(order);
         };
       });
@@ -238,7 +286,7 @@
         .limit(2000);
 
       var ord = await db.from('orders')
-        .select('id,total,status,created_at,is_test')
+        .select('id,total,amount_paid,status,created_at,is_test')
         .order('created_at', { ascending: false })
         .limit(1000);
 
@@ -249,6 +297,10 @@
 
       var events = ev.data || [];
       var orders = ord.data || [];
+      var realOrders = orders.filter(function (o) {
+        return !o.is_test;
+      });
+
       var views = {};
       var adds = {};
 
@@ -276,13 +328,12 @@
         })
         .slice(0, 8);
 
-      var paid = orders.filter(function (o) {
-        return ['paid', 'processing', 'shipped', 'completed']
-          .includes(o.status);
-      });
-
-      var revenue = paid.reduce(function (n, o) {
+      var orderedValue = realOrders.reduce(function (n, o) {
         return n + Number(o.total || 0);
+      }, 0);
+
+      var revenue = realOrders.reduce(function (n, o) {
+        return n + Number(o.amount_paid || 0);
       }, 0);
 
       var testOrders = orders.filter(function (o) {
@@ -295,15 +346,23 @@
 
       content.innerHTML =
         '<h2>VISÃO GERAL</h2>' +
+
         '<div class="metric-grid">' +
           '<article><small>ENCOMENDAS</small><strong>' +
-            orders.length + '</strong></article>' +
-          '<article><small>VENDAS CONFIRMADAS</small><strong>' +
+            realOrders.length + '</strong></article>' +
+
+          '<article><small>VALOR ENCOMENDADO</small><strong>' +
+            money(orderedValue) + '</strong></article>' +
+
+          '<article><small>VALOR EFETIVAMENTE RECEBIDO</small><strong>' +
             money(revenue) + '</strong></article>' +
+
           '<article><small>VISUALIZAÇÕES DE PRODUTO</small><strong>' +
             count('product_view') + '</strong></article>' +
+
           '<article><small>ADIÇÕES AO CARRINHO</small><strong>' +
             count('add_to_cart') + '</strong></article>' +
+
           '<article><small>PEDIDOS CRIADOS</small><strong>' +
             count('order_created') + '</strong></article>' +
         '</div>' +
@@ -321,48 +380,53 @@
         '</div>' +
 
         '<h2>LIMPEZA DE DADOS DE TESTE</h2>' +
+
         '<p>Encomendas identificadas como teste: <b>' +
           testOrders + '</b></p>' +
+
         '<p>Eventos identificados como teste: <b>' +
           testEvents + '</b></p>' +
+
         '<p class="cart-small">A limpeza não apaga produtos, categorias, stock ou encomendas reais.</p>' +
+
         '<button type="button" id="resetTestData">LIMPAR DADOS DE TESTE</button>' +
 
-        '<p class="cart-small">A amostra limita-se aos últimos 2.000 eventos e 1.000 pedidos.</p>';
+        '<p class="cart-small">A amostra limita-se aos últimos 2.000 eventos e 1.000 pedidos. As métricas apresentadas também usam esta amostra.</p>';
 
-      document.getElementById('resetTestData').onclick = async function () {
-        if (!confirm(
-          'ATENÇÃO: serão apagadas todas as encomendas e métricas identificadas como teste. Os produtos e encomendas reais serão preservados. Continuar?'
-        )) return;
+      document.getElementById('resetTestData').onclick =
+        async function () {
+          if (!confirm(
+            'ATENÇÃO: serão apagadas as encomendas e métricas identificadas como teste. Os produtos e encomendas reais serão preservados. Continuar?'
+          )) return;
 
-        if (!confirm('Confirma novamente que queres apagar os dados de teste?')) {
-          return;
-        }
+          if (!confirm(
+            'Confirma novamente que queres apagar os dados de teste?'
+          )) return;
 
-        this.disabled = true;
-        this.textContent = 'A LIMPAR...';
+          this.disabled = true;
+          this.textContent = 'A LIMPAR...';
 
-        var result = await db.rpc('admin_reset_test_data');
+          var result = await db.rpc('admin_reset_test_data');
 
-        if (result.error) {
-          alert('Erro ao limpar dados: ' + result.error.message);
-          this.disabled = false;
-          this.textContent = 'LIMPAR DADOS DE TESTE';
-          return;
-        }
+          if (result.error) {
+            alert('Erro ao limpar dados: ' + result.error.message);
+            this.disabled = false;
+            this.textContent = 'LIMPAR DADOS DE TESTE';
+            return;
+          }
 
-        var d = result.data || {};
+          var d = result.data || {};
 
-        alert(
-          'Limpeza concluída.\n' +
-          'Encomendas apagadas: ' + (d.orders_deleted || 0) + '\n' +
-          'Artigos apagados: ' + (d.items_deleted || 0) + '\n' +
-          'Reservas apagadas: ' + (d.reservations_deleted || 0) + '\n' +
-          'Eventos apagados: ' + (d.events_deleted || 0)
-        );
+          alert(
+            'Limpeza concluída.\n' +
+            'Encomendas apagadas: ' + (d.orders_deleted || 0) + '\n' +
+            'Artigos apagados: ' + (d.items_deleted || 0) + '\n' +
+            'Reservas apagadas: ' + (d.reservations_deleted || 0) + '\n' +
+            'Eventos apagados: ' + (d.events_deleted || 0)
+          );
 
-        load('metrics');
-      };
+          load('metrics');
+        };
 
       return;
     }
@@ -371,7 +435,7 @@
       var r = await db.from('orders')
         .select(
           'id,order_number,customer_name,customer_phone,total,' +
-          'status,created_at,is_test,payment_method'
+          'amount_paid,status,created_at,is_test,payment_method'
         )
         .order('created_at', { ascending: false })
         .limit(100);
@@ -383,25 +447,32 @@
 
       content.innerHTML =
         '<h2>PESQUISAR ENCOMENDA</h2>' +
+
         '<form id="orderSearchForm" class="admin-form">' +
           '<input name="reference" placeholder="Código de referência da encomenda" required>' +
           '<button type="submit" class="btn btn-light">PESQUISAR</button>' +
         '</form>' +
+
         '<div id="orderSearchResult"></div>' +
+
         '<h2>ENCOMENDAS RECENTES</h2>' +
         '<div class="admin-table">' +
           ((r.data || []).map(renderOrder).join('') ||
             '<p>Não existem encomendas.</p>') +
         '</div>';
 
-      document.getElementById('orderSearchForm').onsubmit = function (e) {
-        e.preventDefault();
-        var d = new FormData(e.target);
-        searchOrder(d.get('reference'));
-      };
+      document.getElementById('orderSearchForm').onsubmit =
+        function (e) {
+          e.preventDefault();
+          var d = new FormData(e.target);
+          searchOrder(d.get('reference'));
+        };
 
       r.data.forEach(function (o) {
-        var s = content.querySelector('[data-order="' + o.id + '"]');
+        var s = content.querySelector(
+          '[data-order="' + o.id + '"]'
+        );
+
         if (s) s.value = o.status;
       });
 
@@ -436,7 +507,9 @@
       content.querySelectorAll('[data-save-order]').forEach(function (b) {
         b.onclick = async function () {
           var id = b.dataset.saveOrder;
-          var select = content.querySelector('[data-order="' + id + '"]');
+          var select = content.querySelector(
+            '[data-order="' + id + '"]'
+          );
 
           if (!select || select.disabled) return;
 
@@ -448,7 +521,9 @@
           if (!order) return;
 
           if (order.status === 'cancelled') {
-            alert('Esta encomenda já foi cancelada e não pode ser reativada.');
+            alert(
+              'Esta encomenda já foi cancelada e não pode ser reativada.'
+            );
             load('orders');
             return;
           }
@@ -462,7 +537,7 @@
 
           if (status === 'paid') {
             if (!confirm(
-              'Confirmaste manualmente o comprovativo e o valor recebido?'
+              'Só confirma se verificaste realmente o comprovativo e recebeste o valor. O stock reservado será descontado. Continuar?'
             )) return;
 
             x = await db.rpc('confirm_order_payment', {
@@ -488,8 +563,10 @@
           }
 
           if (x.error) {
-            alert('Não foi possível atualizar a encomenda: ' +
-              x.error.message);
+            alert(
+              'Não foi possível atualizar a encomenda: ' +
+              x.error.message
+            );
             return;
           }
 
@@ -504,12 +581,14 @@
     if (tab === 'categories') {
       content.innerHTML =
         '<h2>ADICIONAR CATEGORIA</h2>' +
+
         '<form id="categoryForm" class="admin-form">' +
           '<input name="name" placeholder="Nome da categoria" required>' +
           '<input name="slug" placeholder="slug-exemplo" required>' +
           '<input name="description" placeholder="Descrição">' +
           '<button class="btn btn-light">CRIAR CATEGORIA</button>' +
         '</form>' +
+
         '<div id="categoryList"></div>';
 
       var r = await db.from('categories')
@@ -534,6 +613,7 @@
       document.getElementById('categoryForm').onsubmit =
         async function (e) {
           e.preventDefault();
+
           var d = new FormData(e.target);
 
           var x = await db.from('categories').insert({
@@ -550,7 +630,9 @@
       content.querySelectorAll('[data-cat]').forEach(function (b) {
         b.onclick = async function () {
           var x = await db.from('categories')
-            .update({ is_active: b.dataset.active !== 'true' })
+            .update({
+              is_active: b.dataset.active !== 'true'
+            })
             .eq('id', b.dataset.cat);
 
           if (x.error) alert(x.error.message);
@@ -578,9 +660,11 @@
 
       content.innerHTML =
         '<h2>ADICIONAR PRODUTO</h2>' +
+
         '<form id="productForm" class="admin-form">' +
           '<input name="name" placeholder="Nome" required>' +
           '<input name="slug" placeholder="slug-produto" required>' +
+
           '<select name="category_id">' +
             '<option value="">Sem categoria</option>' +
             (cats.data || []).map(function (c) {
@@ -588,19 +672,23 @@
                 esc(c.name) + '</option>';
             }).join('') +
           '</select>' +
+
           '<input name="price" type="number" min="0" step="0.01" placeholder="Preço em MT" required>' +
           '<input name="stock" type="number" min="0" step="1" placeholder="Stock" value="0" required>' +
           '<textarea name="description" placeholder="Descrição"></textarea>' +
           '<input name="image_url" type="url" placeholder="URL da imagem principal">' +
           '<button class="btn btn-light">CRIAR PRODUTO</button>' +
         '</form>' +
+
         '<h2>CATÁLOGO</h2>' +
+
         '<div class="admin-table">' +
           (ps.data || []).map(function (p) {
             return '<p class="admin-row"><span><b>' +
               esc(p.name) + '</b><small> / ' +
               esc(p.slug) + ' · ' + money(p.price) +
               ' · stock ' + p.stock + '</small></span>' +
+
               '<button data-product-toggle="' + esc(p.slug) +
               '" data-active="' + p.is_active + '">' +
               (p.is_active ? 'DESATIVAR' : 'ATIVAR') +
@@ -611,7 +699,9 @@
       content.querySelectorAll('[data-product-toggle]').forEach(function (b) {
         b.onclick = async function () {
           var x = await db.from('products')
-            .update({ is_active: b.dataset.active !== 'true' })
+            .update({
+              is_active: b.dataset.active !== 'true'
+            })
             .eq('slug', b.dataset.productToggle);
 
           if (x.error) alert(x.error.message);
@@ -622,6 +712,7 @@
       document.getElementById('productForm').onsubmit =
         async function (e) {
           e.preventDefault();
+
           var d = new FormData(e.target);
 
           var payload = {
@@ -652,8 +743,10 @@
             });
 
             if (im.error) {
-              alert('Produto criado, mas a imagem não foi associada: ' +
-                im.error.message);
+              alert(
+                'Produto criado, mas a imagem não foi associada: ' +
+                im.error.message
+              );
             }
           }
 
@@ -665,6 +758,7 @@
   document.getElementById('loginForm').onsubmit =
     async function (e) {
       e.preventDefault();
+
       var d = new FormData(e.target);
 
       var r = await db.auth.signInWithPassword({
@@ -673,7 +767,8 @@
       });
 
       if (r.error) {
-        message.textContent = 'Credenciais inválidas ou erro de ligação.';
+        message.textContent =
+          'Credenciais inválidas ou erro de ligação.';
         return;
       }
 
@@ -686,12 +781,14 @@
     };
   });
 
-  document.getElementById('adminLogout').onclick = async function () {
-    await db.auth.signOut();
-    show();
-  };
+  document.getElementById('adminLogout').onclick =
+    async function () {
+      await db.auth.signOut();
+      show();
+    };
 
   db.auth.getSession().then(function (r) {
     if (r.data.session) show();
   });
+
 })();
