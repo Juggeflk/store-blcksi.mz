@@ -144,8 +144,36 @@
       });
 
       if (result.error) {
-        var serverError = result.data && result.data.error;
-        throw new Error(serverError || result.error.message || 'Não foi possível criar o pedido.');
+        var serverError = null;
+        var status = null;
+
+        try {
+          var response = result.error.context;
+
+          if (response) {
+            status = response.status;
+
+            if (typeof response.clone === 'function') {
+              var responseBody = await response.clone().json();
+              serverError = responseBody &&
+                (responseBody.error || responseBody.message);
+            }
+          }
+        } catch (parseError) {
+          console.warn('Não foi possível ler a resposta do servidor:', parseError);
+        }
+
+        console.error('BLCKSI erro detalhado:', {
+          status: status,
+          serverError: serverError,
+          originalError: result.error
+        });
+
+        throw new Error(
+          serverError ||
+          result.error.message ||
+          'Não foi possível criar o pedido.'
+        );
       }
 
       var order = result.data || {};
