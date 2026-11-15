@@ -93,3 +93,10 @@
  .admin-shell .metric-grid article strong{font-size:21px}
 }
 @media(max-width:360px){.admin-shell .admin-brand img{width:112px}.admin-shell .admin-brand span{display:none}.admin-shell .metric-grid{grid-template-columns:1fr}}
+
+/* Cabeçalho da marca — wordmark visível sem depender de imagem externa */
+.admin-brand .admin-logo-mark{display:block;color:#f4fbf8;font-size:29px;line-height:1;font-weight:950;letter-spacing:-.09em}
+.admin-brand .admin-logo-name{display:block;color:var(--admin-mint);font-size:8px;line-height:1.35;letter-spacing:.2em;font-weight:900;padding:0;border:0}
+.admin-brand .admin-brand-label{display:block;font-size:9px;letter-spacing:.24em;color:var(--admin-mint);border-left:1px solid var(--admin-line);padding:9px 0 9px 16px;font-weight:800}
+.admin-brand{gap:9px}
+@media(max-width:600px){.admin-brand .admin-logo-mark{font-size:25px}.admin-brand .admin-logo-name{font-size:7px}.admin-brand .admin-brand-label{font-size:7px;padding-left:10px}}
