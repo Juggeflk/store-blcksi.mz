@@ -82,25 +82,32 @@
 
   async function access() {
     var u = await db.auth.getUser();
-    if (!u.data.user) return false;
+    if (u.error) return { ok: false, message: 'Não foi possível validar a sessão: ' + u.error.message };
+    if (!u.data.user) return { ok: false, message: 'Sessão não encontrada. Volta a entrar no painel.' };
 
     var p = await db.from('profiles')
       .select('role')
       .eq('id', u.data.user.id)
-      .single();
+      .maybeSingle();
 
-    return !p.error && p.data.role === 'admin';
+    if (p.error) {
+      return { ok: false, message: 'A sessão foi iniciada, mas não foi possível consultar o perfil de administrador (' + p.error.code + '): ' + p.error.message };
+    }
+    if (!p.data) return { ok: false, message: 'A conta está autenticada, mas não existe um perfil correspondente na tabela profiles.' };
+    if (p.data.role !== 'admin') return { ok: false, message: 'Esta conta não tem permissões de administrador.' };
+    return { ok: true };
   }
 
   async function show() {
-    if (!await access()) {
-      await db.auth.signOut();
+    var result = await access();
+    if (!result.ok) {
       login.hidden = false;
       panel.hidden = true;
-      message.textContent = 'Esta conta não tem permissões de administrador.';
+      message.textContent = result.message;
       return;
     }
 
+    message.textContent = '';
     login.hidden = true;
     panel.hidden = false;
     load('orders');
