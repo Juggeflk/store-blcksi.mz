@@ -497,9 +497,10 @@
             if (!confirm('Tens a certeza de que queres cancelar esta encomenda e libertar o stock reservado?')) return;
             x = await db.rpc('cancel_order_and_release_stock', {p_order_id: id});
           } else {
-            x = await db.from('orders')
-              .update({status: status, updated_at: new Date().toISOString()})
-              .eq('id', id);
+            x = await db.rpc('advance_order_status', {
+              p_order_id: id,
+              p_new_status: status
+            });
           }
 
           if (x.error) {
