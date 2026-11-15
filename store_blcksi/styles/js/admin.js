@@ -556,55 +556,96 @@
 
     if (tab === 'categories') {
       content.innerHTML =
-        '<h2>ADICIONAR CATEGORIA</h2>' +
+        '<h2>GESTÃO DE CATEGORIAS</h2>' +
         '<form id="categoryForm" class="admin-form">' +
         '<input name="name" placeholder="Nome da categoria" required>' +
-        '<input name="slug" placeholder="slug-exemplo" required>' +
+        '<input name="slug" placeholder="Identificador (ex.: camisetas)" required>' +
         '<input name="description" placeholder="Descrição">' +
-        '<button class="btn btn-light">CRIAR CATEGORIA</button></form>' +
+        '<button class="btn btn-light" type="submit">CRIAR CATEGORIA</button></form>' +
         '<div id="categoryList"></div>';
 
       var r = await db.from('categories').select('*').order('position');
-      if (r.error) {
-        content.textContent = r.error.message;
-        return;
-      }
+      if (r.error) { content.textContent = 'Erro ao carregar categorias: ' + r.error.message; return; }
 
-      document.getElementById('categoryList').innerHTML =
-        (r.data || []).map(function (c) {
-          return '<p class="admin-row">' + esc(c.name) +
-            ' <small>/' + esc(c.slug) + '</small> ' +
-            '<button data-cat="' + c.id + '" data-active="' + c.is_active + '">' +
-            (c.is_active ? 'DESATIVAR' : 'ATIVAR') + '</button></p>';
-        }).join('');
+      var categoryList = document.getElementById('categoryList');
+      categoryList.innerHTML = (r.data || []).map(function(c) {
+        return '<article class="admin-row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0">' +
+          '<div style="flex:1;min-width:160px"><strong>' + esc(c.name) + '</strong> <small>/' + esc(c.slug) + '</small> ' +
+          '<small>' + (c.is_active ? 'ACTIVA' : 'INACTIVA') + '</small></div>' +
+          '<button type="button" data-edit-cat="' + esc(c.id) + '">EDITAR</button>' +
+          '<button type="button" data-toggle-cat="' + esc(c.id) + '" data-active="' + c.is_active + '">' +
+          (c.is_active ? 'DESATIVAR' : 'REATIVAR') + '</button>' +
+          '<button type="button" class="danger" data-delete-cat="' + esc(c.id) + '">ELIMINAR</button></article>';
+      }).join('') || '<p class="cart-small">Ainda não existem categorias.</p>';
 
-      document.getElementById('categoryForm').onsubmit = async function (e) {
+      document.getElementById('categoryForm').onsubmit = async function(e) {
         e.preventDefault();
-        var d = new FormData(e.target);
+        var form = e.currentTarget;
+        var d = new FormData(form);
+        var name = String(d.get('name') || '').trim();
+        var slug = String(d.get('slug') || '').toLowerCase().trim();
         var x = await db.from('categories').insert({
-          name: d.get('name'),
-          slug: d.get('slug').toLowerCase().trim(),
-          description: d.get('description'),
-          position: (r.data || []).length
+          name:name, slug:slug, description:String(d.get('description') || '').trim(),
+          position:(r.data || []).length, is_active:true
         });
-        if (x.error) alert(x.error.message);
-        else load('categories');
+        if (x.error) alert('Não foi possível criar a categoria: ' + x.error.message);
+        else { alert('Categoria criada. Já pode ser escolhida ao cadastrar produtos.'); load('categories'); }
       };
 
-      content.querySelectorAll('[data-cat]').forEach(function (b) {
-        b.onclick = async function () {
-          var x = await db.from('categories')
-            .update({is_active: b.dataset.active !== 'true'})
-            .eq('id', b.dataset.cat);
-          if (x.error) alert(x.error.message);
-          else load('categories');
+      categoryList.querySelectorAll('[data-edit-cat]').forEach(function(b) {
+        b.onclick = async function() {
+          var category = (r.data || []).find(function(c) { return c.id === b.dataset.editCat; });
+          if (!category) return;
+          var name = prompt('Nome da categoria:', category.name);
+          if (name === null) return;
+          name = name.trim();
+          if (!name) { alert('O nome não pode ficar vazio.'); return; }
+          var slug = prompt('Identificador (slug):', category.slug);
+          if (slug === null) return;
+          slug = slug.toLowerCase().trim();
+          if (!slug) { alert('O identificador não pode ficar vazio.'); return; }
+          var description = prompt('Descrição:', category.description || '');
+          if (description === null) return;
+          var x = await db.from('categories').update({
+            name:name, slug:slug, description:description.trim()
+          }).eq('id', category.id);
+          if (x.error) alert('Não foi possível editar a categoria: ' + x.error.message);
+          else { alert('Categoria actualizada.'); load('categories'); }
+        };
+      });
+
+      categoryList.querySelectorAll('[data-toggle-cat]').forEach(function(b) {
+        b.onclick = async function() {
+          var nextActive = b.dataset.active !== 'true';
+          var label = nextActive ? 'reativar' : 'desativar';
+          if (!confirm('Confirmas ' + label + ' esta categoria? Os produtos associados não serão apagados.')) return;
+          var x = await db.from('categories').update({is_active:nextActive}).eq('id', b.dataset.toggleCat);
+          if (x.error) alert('Não foi possível alterar o estado: ' + x.error.message);
+          else { alert(nextActive ? 'Categoria reactivada.' : 'Categoria desactivada.'); load('categories'); }
+        };
+      });
+
+      categoryList.querySelectorAll('[data-delete-cat]').forEach(function(b) {
+        b.onclick = async function() {
+          var category = (r.data || []).find(function(c) { return c.id === b.dataset.deleteCat; });
+          if (!category) return;
+          var linked = await db.from('products').select('id').eq('category_id', category.id).limit(1);
+          if (linked.error) { alert('Não foi possível verificar os produtos associados: ' + linked.error.message); return; }
+          if (linked.data && linked.data.length) {
+            alert('Esta categoria tem produtos associados. Desactiva-a ou transfere primeiro os produtos para outra categoria. Nenhum dado foi eliminado.');
+            return;
+          }
+          if (!confirm('Eliminar permanentemente a categoria "' + category.name + '"?')) return;
+          var x = await db.from('categories').delete().eq('id', category.id);
+          if (x.error) alert('Não foi possível eliminar a categoria: ' + x.error.message);
+          else { alert('Categoria eliminada.'); load('categories'); }
         };
       });
       return;
     }
 
     if (tab === 'products') {
-      var cats = await db.from('categories').select('id,name').order('name');
+      var cats = await db.from('categories').select('id,name,is_active').order('name');
       var ps = await db.from('products')
         .select('id,name,slug,category_id,price,stock,description,is_active,categories(name),product_images(id,product_id,image_url,position)')
         .order('created_at', { ascending: false }).limit(100);
@@ -654,7 +695,7 @@
           '<label>Nome do produto<input name="name" value="' + esc(p.name) + '" required></label>' +
           '<label>Identificador (gerado pelo nome)<input name="slug" value="' + esc(p.slug) + '" required></label>' +
           '<label>Categoria<select name="category_id"><option value="">Sem categoria</option>' +
-          (cats.data || []).map(function(c){return '<option value="' + c.id + '"' + (c.id===p.category_id?' selected':'') + '>' + esc(c.name) + '</option>';}).join('') + '</select></label>' +
+          (cats.data || []).filter(function(c){return c.is_active || c.id===p.category_id;}).map(function(c){return '<option value="' + c.id + '"' + (c.id===p.category_id?' selected':'') + '>' + esc(c.name) + (c.is_active?'':' (inactiva)') + '</option>';}).join('') + '</select></label>' +
           '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" value="' + Number(p.price) + '" required></label>' +
           '<label>Quantidade em stock<input name="stock" type="number" min="0" step="1" value="' + Number(p.stock) + '" required></label>' +
           '<label class="wide">Descrição<textarea name="description">' + esc(p.description || '') + '</textarea></label>' +
@@ -668,7 +709,7 @@
         '<label>Nome do produto<input name="name" placeholder="Ex.: Camiseta BLCKSI Essential" required></label>' +
         '<label>Identificador do produto<input name="slug" placeholder="Gerado automaticamente" required></label>' +
         '<label>Categoria<select name="category_id"><option value="">Escolher categoria</option>' +
-        (cats.data || []).map(function(c){return '<option value="' + c.id + '">' + esc(c.name) + '</option>';}).join('') + '</select></label>' +
+        (cats.data || []).filter(function(c){return c.is_active;}).map(function(c){return '<option value="' + c.id + '">' + esc(c.name) + '</option>';}).join('') + '</select></label>' +
         '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 1500" required></label>' +
         '<label>Quantidade disponível em stock<input name="stock" type="number" min="0" step="1" value="0" required></label>' +
         '<label class="wide">Descrição do produto<textarea name="description" placeholder="Material, corte, tamanhos, detalhes..."></textarea></label>' +
