@@ -723,20 +723,51 @@
       var imageInput = createForm.elements.images;
       var preview = document.getElementById('newImagePreview');
 
-      function previewFiles() {
-        var files = Array.from(imageInput.files || []);
-        if (files.length > 5) {
-          alert('Podes seleccionar no máximo 5 imagens por produto.');
-          imageInput.value = '';
-          preview.innerHTML = '';
-          return;
-        }
-        preview.innerHTML = files.map(function(file, i) {
-          return '<div class="product-image-item"><img src="' + URL.createObjectURL(file) + '" alt="Pré-visualização ' + (i+1) + '"><small>' +
-            (i===0?'CAPA PRINCIPAL':'IMAGEM '+(i+1)) + '</small><small>' + esc(file.name) + '</small></div>';
+      var selectedProductImages = [];
+      var createPreviewUrls = [];
+
+      function renderNewProductImages() {
+        createPreviewUrls.forEach(function(url) { URL.revokeObjectURL(url); });
+        createPreviewUrls = [];
+        preview.innerHTML = selectedProductImages.map(function(file, i) {
+          var url = URL.createObjectURL(file);
+          createPreviewUrls.push(url);
+          return '<div class="product-image-item"><img src="' + url + '" alt="Pré-visualização ' + (i+1) + '">' +
+            '<div class="product-image-actions"><small>' + (i===0?'CAPA PRINCIPAL':'IMAGEM '+(i+1)) +
+            '</small><small>' + esc(file.name) + '</small>' +
+            '<button type="button" data-remove-new-image="' + i + '" class="danger">REMOVER</button></div></div>';
         }).join('');
       }
-      imageInput.addEventListener('change', previewFiles);
+
+      imageInput.addEventListener('change', function() {
+        var newlySelected = Array.from(imageInput.files || []);
+        imageInput.value = '';
+        if (!newlySelected.length) return;
+        var valid = newlySelected.filter(function(file) {
+          return /^image\/(jpeg|png|webp)$/.test(file.type) && file.size <= 10 * 1024 * 1024;
+        });
+        if (valid.length !== newlySelected.length) {
+          alert('Escolhe apenas imagens JPG, PNG ou WebP até 10 MB cada.');
+        }
+        valid.forEach(function(file) {
+          var duplicate = selectedProductImages.some(function(existing) {
+            return existing.name === file.name && existing.size === file.size &&
+              existing.lastModified === file.lastModified;
+          });
+          if (!duplicate && selectedProductImages.length < 5) selectedProductImages.push(file);
+        });
+        if (selectedProductImages.length >= 5 && valid.length > 0) {
+          alert('O limite é de 5 imagens por produto. As primeiras 5 foram mantidas.');
+        }
+        renderNewProductImages();
+      });
+
+      preview.addEventListener('click', function(e) {
+        var button = e.target.closest('[data-remove-new-image]');
+        if (!button) return;
+        selectedProductImages.splice(Number(button.dataset.removeNewImage), 1);
+        renderNewProductImages();
+      });
       createForm.elements.name.addEventListener('input', function() {
         createForm.elements.slug.value = slugify(createForm.elements.name.value);
       });
@@ -765,7 +796,7 @@
 
       createForm.onsubmit = async function(e) {
         e.preventDefault();
-        var files = Array.from(imageInput.files || []);
+        var files = selectedProductImages.slice();
         if (files.length < 1 || files.length > 5) {
           alert('Selecciona entre 1 e 5 imagens para o produto.');
           return;
