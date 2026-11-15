@@ -818,7 +818,7 @@
             return;
           }
           var invalid = stagedFiles.find(function(file) {
-            return !/^image\\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024;
+            return !/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024;
           });
           if (invalid) {
             alert('Escolhe apenas imagens JPG, PNG ou WebP até 10 MB cada. Ficheiro inválido: ' + invalid.name);
