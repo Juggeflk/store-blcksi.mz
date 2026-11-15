@@ -647,7 +647,7 @@
     if (tab === 'products') {
       var cats = await db.from('categories').select('id,name,is_active').order('name');
       var ps = await db.from('products')
-        .select('id,name,slug,category_id,price,stock,description,is_active,categories(name),product_images(id,product_id,image_url,position)')
+        .select('id,name,slug,category_id,price,stock,description,available_colors,is_active,categories(name),product_images(id,product_id,image_url,position)')
         .order('created_at', { ascending: false }).limit(100);
 
       if (cats.error || ps.error) {
@@ -658,6 +658,17 @@
       function slugify(value) {
         return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
           .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      }
+      function colorFields(selected) {
+        var colors = ['Preto','Branco','Creme','Castanho'];
+        selected = Array.isArray(selected) ? selected : [];
+        return '<fieldset class="admin-color-field wide"><legend>Cores disponíveis</legend><div class="admin-color-options">' + colors.map(function(color){return '<label><input type="checkbox" name="available_colors" value="'+color+'" '+(selected.indexOf(color)>=0?'checked':'')+'> '+color+'</label>';}).join('') + '</div><label>Outras cores (separadas por vírgula)<input name="custom_colors" value="'+esc(selected.filter(function(color){return colors.indexOf(color)<0;}).join(', '))+'" placeholder="Ex.: Azul-marinho, Verde-oliva"></label></fieldset>';
+      }
+      function readColors(form) {
+        var values = Array.from(form.querySelectorAll('input[name="available_colors"]:checked')).map(function(input){return input.value;});
+        var custom = String((form.elements.custom_colors && form.elements.custom_colors.value) || '').split(',').map(function(value){return value.trim();}).filter(Boolean);
+        custom.forEach(function(value){if(!values.some(function(existing){return existing.toLowerCase()===value.toLowerCase();})) values.push(value);});
+        return values;
       }
       function imagePath(url) {
         var marker = '/storage/v1/object/public/product-images/';
@@ -699,6 +710,7 @@
           '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" value="' + Number(p.price) + '" required></label>' +
           '<label>Quantidade em stock<input name="stock" type="number" min="0" step="1" value="' + Number(p.stock) + '" required></label>' +
           '<label class="wide">Descrição<textarea name="description">' + esc(p.description || '') + '</textarea></label>' +
+          colorFields(p.available_colors) +
           '<button type="submit">GUARDAR ALTERAÇÕES</button><button type="button" data-close-edit="' + esc(p.id) + '">FECHAR</button></form></article>';
       }
 
@@ -713,6 +725,7 @@
         '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 1500" required></label>' +
         '<label>Quantidade disponível em stock<input name="stock" type="number" min="0" step="1" value="0" required></label>' +
         '<label class="wide">Descrição do produto<textarea name="description" placeholder="Material, corte, tamanhos, detalhes..."></textarea></label>' +
+        colorFields([]) +
         '<label class="wide">Fotografias do produto (1 a 5)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required><small>Formatos: JPG, PNG ou WebP. Máximo 5 imagens, até 10 MB cada.</small></label>' +
         '<div id="newImagePreview" class="product-gallery-admin wide"></div>' +
         '<button class="btn btn-light" type="submit">CRIAR PRODUTO</button></form>' +
@@ -811,6 +824,7 @@
           price: Number(d.get('price')),
           stock: Number(d.get('stock')),
           description: d.get('description'),
+          available_colors: readColors(createForm),
           is_active: true
         }).select('id').single();
         if (result.error) {
@@ -850,7 +864,8 @@
           var x = await db.from('products').update({
             name:String(d.get('name')).trim(), slug:slugify(d.get('slug')),
             category_id:d.get('category_id')||null, price:Number(d.get('price')),
-            stock:Number(d.get('stock')), description:d.get('description')
+            stock:Number(d.get('stock')), description:d.get('description'),
+            available_colors:readColors(form)
           }).eq('id',form.dataset.editForm);
           if(x.error) alert('Erro ao actualizar produto: '+x.error.message); else {alert('Dados do produto actualizados.');load('products');}
         };
