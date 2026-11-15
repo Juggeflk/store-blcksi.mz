@@ -127,3 +127,15 @@
 .admin-shell .product-edit-form button{min-height:40px;padding:9px;background:var(--admin-cyan);color:#022728;border:0;font-size:9px;font-weight:900}
 @media(max-width:760px){.admin-shell .product-gallery-admin{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.admin-shell .product-gallery-admin{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-shell .product-edit-form{grid-template-columns:1fr}.admin-shell .product-edit-form .wide{grid-column:auto}.admin-shell .product-manage-head{align-items:flex-start;flex-direction:column}}
+
+
+/* Adição de imagens com pré-visualização e confirmação */
+.product-add-image-box{display:flex;flex-direction:column;gap:12px;min-width:0}
+.product-add-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px;width:100%}
+.product-add-preview .product-image-item{min-width:0}
+.product-add-preview .product-image-item img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px}
+.product-add-preview .product-image-actions{display:flex;flex-direction:column;gap:4px;padding-top:7px;overflow-wrap:anywhere}
+.product-add-actions{display:flex;flex-wrap:wrap;gap:8px}
+.product-add-actions button{min-height:42px;padding:10px 16px}
+.product-add-actions .btn-cancel-images{background:transparent;color:inherit;border:1px solid currentColor}
+.product-add-actions button:disabled{opacity:.55;cursor:wait}
