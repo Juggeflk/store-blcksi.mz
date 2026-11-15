@@ -100,3 +100,30 @@
 .admin-brand .admin-brand-label{display:block;font-size:9px;letter-spacing:.24em;color:var(--admin-mint);border-left:1px solid var(--admin-line);padding:9px 0 9px 16px;font-weight:800}
 .admin-brand{gap:9px}
 @media(max-width:600px){.admin-brand .admin-logo-mark{font-size:25px}.admin-brand .admin-logo-name{font-size:7px}.admin-brand .admin-brand-label{font-size:7px;padding-left:10px}}
+
+
+/* Gestão clara de produtos e galeria de imagens */
+.admin-shell .admin-help{max-width:720px;color:var(--admin-muted);font-size:12px;line-height:1.7;margin:-8px 0 18px}
+.admin-shell .product-create-form label,.admin-shell .product-edit-form label{display:flex;flex-direction:column;gap:7px;color:var(--admin-mint);font-size:10px;letter-spacing:.08em;font-weight:800;min-width:0}
+.admin-shell .product-create-form label small{font-size:10px;line-height:1.5;color:var(--admin-muted);font-weight:400;letter-spacing:0}
+.admin-shell .product-create-form .wide,.admin-shell .product-edit-form .wide{grid-column:1/-1}
+.admin-shell .product-create-form input[type=file],.admin-shell .product-add-image input,.admin-shell .product-image-replace input{font-size:11px;padding:9px;min-height:42px}
+.admin-shell .product-manage-list{display:grid;grid-template-columns:1fr;gap:15px}
+.admin-shell .product-manage-card{min-width:0;padding:19px;background:rgba(3,37,39,.72);border:1px solid var(--admin-line);box-shadow:var(--admin-shadow)}
+.admin-shell .product-manage-head,.admin-shell .product-manage-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.admin-shell .product-manage-head b{display:block;font-size:13px;color:var(--admin-white)}
+.admin-shell .product-manage-head small,.admin-shell .product-manage-footer small{display:block;color:var(--admin-muted);font-size:10px;margin-top:5px}
+.admin-shell .product-gallery-admin{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0}
+.admin-shell .product-image-item{min-width:0;border:1px solid var(--admin-line);background:rgba(0,15,17,.45);padding:7px;display:flex;flex-direction:column;gap:7px}
+.admin-shell .product-image-item img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#062c2d}
+.admin-shell .product-image-item>small{color:var(--admin-muted);font-size:9px;overflow-wrap:anywhere}
+.admin-shell .product-image-actions{display:flex;flex-direction:column;gap:6px}
+.admin-shell .product-image-actions>small{color:var(--admin-mint);font-size:8px;letter-spacing:.08em}
+.admin-shell .product-image-actions button,.admin-shell .product-image-replace,.admin-shell .product-add-image{display:flex;justify-content:center;align-items:center;min-height:32px;padding:7px;background:rgba(8,72,70,.65);border:1px solid var(--admin-line);color:#eafff8;font-size:8px;letter-spacing:.04em;font-weight:800;cursor:pointer;text-align:center}
+.admin-shell .product-image-replace input,.admin-shell .product-add-image input{display:none}
+.admin-shell .product-image-actions button.danger{border-color:rgba(255,135,135,.35);color:#ffc2b8;background:rgba(104,47,50,.45)}
+.admin-shell .product-edit-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:16px;padding:16px;border:1px solid var(--admin-line);background:rgba(0,15,17,.35)}
+.admin-shell .product-edit-form[hidden]{display:none}
+.admin-shell .product-edit-form button{min-height:40px;padding:9px;background:var(--admin-cyan);color:#022728;border:0;font-size:9px;font-weight:900}
+@media(max-width:760px){.admin-shell .product-gallery-admin{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.admin-shell .product-gallery-admin{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-shell .product-edit-form{grid-template-columns:1fr}.admin-shell .product-edit-form .wide{grid-column:auto}.admin-shell .product-manage-head{align-items:flex-start;flex-direction:column}}
