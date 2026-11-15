@@ -426,14 +426,7 @@
         }
 
         var d = result.data || {};
-        alert('Limpeza concluída.
-Encomendas apagadas: ' + (d.orders_deleted || 0) +
-          '
-Artigos apagados: ' + (d.items_deleted || 0) +
-          '
-Reservas apagadas: ' + (d.reservations_deleted || 0) +
-          '
-Eventos apagados: ' + (d.events_deleted || 0));
+        alert('Limpeza concluída.\\nEncomendas apagadas: ' + (d.orders_deleted || 0) + '\\nArtigos apagados: ' + (d.items_deleted || 0) + '\\nReservas apagadas: ' + (d.reservations_deleted || 0) + '\\nEventos apagados: ' + (d.events_deleted || 0));
         load('metrics');
       };
       return;
