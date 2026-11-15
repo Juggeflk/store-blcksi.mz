@@ -154,7 +154,7 @@
 
   async function orderDetails(order) {
     var items = await db.from('order_items')
-      .select('product_name,product_slug,size,quantity,unit_price,line_total')
+      .select('product_name,product_slug,size,color,quantity,unit_price,line_total')
       .eq('order_id', order.id);
 
     if (items.error) {
