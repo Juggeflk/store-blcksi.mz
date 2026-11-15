@@ -99,18 +99,25 @@
   }
 
   async function show() {
-    var result = await access();
-    if (!result.ok) {
+    try {
+      var result = await access();
+      if (!result.ok) {
+        login.hidden = false;
+        panel.hidden = true;
+        message.textContent = result.message;
+        return;
+      }
+
+      message.textContent = '';
+      login.hidden = true;
+      panel.hidden = false;
+      await load('orders');
+    } catch (err) {
       login.hidden = false;
       panel.hidden = true;
-      message.textContent = result.message;
-      return;
+      message.textContent = 'A autenticação foi iniciada, mas ocorreu um erro ao validar ou carregar o painel: ' + (err && err.message ? err.message : String(err));
+      console.error('BLCKSI admin panel error:', err);
     }
-
-    message.textContent = '';
-    login.hidden = true;
-    panel.hidden = false;
-    load('orders');
   }
 
   function renderOrder(o) {
@@ -902,17 +909,32 @@
 
   document.getElementById('loginForm').onsubmit = async function (e) {
     e.preventDefault();
-    var d = new FormData(e.target);
-    var r = await db.auth.signInWithPassword({
-      email: d.get('email'),
-      password: d.get('password')
-    });
+    var form = e.currentTarget;
+    var button = form.querySelector('button[type="submit"]');
+    var d = new FormData(form);
+    button.disabled = true;
+    button.textContent = 'A VALIDAR...';
+    message.textContent = 'A validar acesso ao painel...';
 
-    if (r.error) {
-      message.textContent = 'Credenciais inválidas ou erro de ligação.';
-      return;
+    try {
+      var r = await db.auth.signInWithPassword({
+        email: d.get('email'),
+        password: d.get('password')
+      });
+
+      if (r.error) {
+        message.textContent = 'Falha no início de sessão: ' + r.error.message;
+        return;
+      }
+
+      await show();
+    } catch (err) {
+      message.textContent = 'Erro ao abrir o painel: ' + (err && err.message ? err.message : String(err));
+      console.error('BLCKSI admin login error:', err);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'ENTRAR NO PAINEL';
     }
-    show();
   };
 
   document.querySelectorAll('[data-tab]').forEach(function (b) {
