@@ -79,7 +79,7 @@
     } else {
       lines.innerHTML = items.map(function (item) {
         return '<div class="cart-line">' +
-          '<span>' + escapeHtml(item.name || item.product_name || 'Produto') +
+          '<span>' + escapeHtml(item.name || item.product_name || 'Produto') + (item.color ? ' · Cor: ' + escapeHtml(item.color) : '') +
           ' × ' + quantityOf(item) + '</span>' +
           '<strong>' + money(
             Number(item.price || item.unit_price || 0) *
@@ -145,6 +145,7 @@
           return {
             slug: item.slug || item.product_slug,
             size: item.size || null,
+            color: item.color || null,
             quantity: quantityOf(item)
           };
         })
@@ -203,7 +204,7 @@
 
       var productLines = items.map(function (item) {
         return '- ' + (item.name || item.product_name || 'Produto') +
-          ' | Qtd: ' + quantityOf(item) +
+          (item.color ? ' | Cor: ' + item.color : '') +\n          ' | Qtd: ' + quantityOf(item) +
           ' | ' + money(
             Number(item.price || item.unit_price || 0) *
             quantityOf(item)
