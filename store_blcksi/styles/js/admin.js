@@ -633,7 +633,7 @@
           (images.map(imageCard).join('') || '<p class="cart-small">Ainda sem fotografias.</p>') +
           '</div><div class="product-manage-footer">' +
           '<small>' + images.length + ' de 5 imagens</small>' +
-          (images.length < 5 ? '<label class="product-add-image">+ ADICIONAR IMAGEM<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-add-images="' + esc(p.id) + '"></label>' : '<small>Limite de 5 imagens atingido.</small>') +
+          (images.length < 5 ? '<div class="product-add-image-box"><label class="product-add-image">+ SELECCIONAR IMAGENS<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-add-images="' + esc(p.id) + '"></label><div class="product-add-preview" data-add-preview="' + esc(p.id) + '" hidden></div><div class="product-add-actions" data-add-actions="' + esc(p.id) + '" hidden><button type="button" data-save-images="' + esc(p.id) + '">GUARDAR IMAGENS</button><button type="button" class="btn-cancel-images" data-cancel-images="' + esc(p.id) + '">CANCELAR</button></div></div>' : '<small>Limite de 5 imagens atingido.</small>') +
           '<button type="button" data-product-toggle="' + esc(p.slug) + '" data-active="' + p.is_active + '">' +
           (p.is_active ? 'DESATIVAR PRODUTO' : 'ACTIVAR PRODUTO') + '</button></div>' +
           '<form class="product-edit-form" data-edit-form="' + esc(p.id) + '" hidden>' +
@@ -771,14 +771,75 @@
       });
 
       content.querySelectorAll('[data-add-images]').forEach(function(input) {
-        input.onchange = async function() {
-          var files=Array.from(input.files||[]);
-          var productId=input.dataset.addImages;
-          var product=ps.data.find(function(p){return p.id===productId;});
-          var count=(product.product_images||[]).length;
-          if(count+files.length>5){alert('Este produto já tem '+count+' imagem(ns). Podes adicionar apenas '+(5-count)+'.');input.value='';return;}
-          try { await uploadImages(productId,files,count); alert('Imagem(ns) adicionada(s).');load('products'); }
-          catch(err){alert('Erro ao adicionar imagens: '+err.message);}
+        var productId = input.dataset.addImages;
+        var product = ps.data.find(function(p) { return p.id === productId; });
+        var currentCount = (product && product.product_images || []).length;
+        var previewBox = content.querySelector('[data-add-preview="' + productId + '"]');
+        var actions = content.querySelector('[data-add-actions="' + productId + '"]');
+        var saveButton = content.querySelector('[data-save-images="' + productId + '"]');
+        var cancelButton = content.querySelector('[data-cancel-images="' + productId + '"]');
+        var stagedFiles = [];
+        var objectUrls = [];
+
+        function clearStaged() {
+          objectUrls.forEach(function(url) { URL.revokeObjectURL(url); });
+          objectUrls = [];
+          stagedFiles = [];
+          input.value = '';
+          previewBox.innerHTML = '';
+          previewBox.hidden = true;
+          actions.hidden = true;
+          saveButton.disabled = false;
+          saveButton.textContent = 'GUARDAR IMAGENS';
+        }
+
+        input.onchange = function() {
+          clearStaged();
+          stagedFiles = Array.from(input.files || []);
+          var available = 5 - currentCount;
+          if (!stagedFiles.length) return;
+          if (stagedFiles.length > available) {
+            alert('Este produto já tem ' + currentCount + ' imagem(ns). Podes adicionar apenas ' + available + '.');
+            clearStaged();
+            return;
+          }
+          var invalid = stagedFiles.find(function(file) {
+            return !/^image\\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024;
+          });
+          if (invalid) {
+            alert('Escolhe apenas imagens JPG, PNG ou WebP até 10 MB cada. Ficheiro inválido: ' + invalid.name);
+            clearStaged();
+            return;
+          }
+          previewBox.innerHTML = stagedFiles.map(function(file, index) {
+            var url = URL.createObjectURL(file);
+            objectUrls.push(url);
+            return '<div class="product-image-item"><img src="' + url + '" alt="Pré-visualização ' + (index + 1) + '"><div class="product-image-actions"><small>' +
+              (currentCount === 0 && index === 0 ? 'CAPA PRINCIPAL' : 'NOVA IMAGEM ' + (index + 1)) +
+              '</small><small>' + esc(file.name) + '</small></div></div>';
+          }).join('');
+          previewBox.hidden = false;
+          actions.hidden = false;
+        };
+
+        cancelButton.onclick = clearStaged;
+        saveButton.onclick = async function() {
+          if (!stagedFiles.length || saveButton.disabled) return;
+          saveButton.disabled = true;
+          cancelButton.disabled = true;
+          saveButton.textContent = 'A GUARDAR...';
+          try {
+            await uploadImages(productId, stagedFiles, currentCount);
+            clearStaged();
+            alert('Imagem(ns) guardada(s) com sucesso.');
+            load('products');
+          } catch(err) {
+            alert('Erro ao guardar imagens: ' + err.message + '. As imagens seleccionadas continuam disponíveis para tentares novamente ou cancelar.');
+            saveButton.disabled = false;
+            saveButton.textContent = 'GUARDAR IMAGENS';
+          } finally {
+            cancelButton.disabled = false;
+          }
         };
       });
       content.querySelectorAll('[data-replace-image]').forEach(function(input) {
