@@ -140,8 +140,8 @@ function searchProducts(query) {
       var button = event.target.closest('[data-cart-action]'); if (!button) return;
       var item = BLCKSICart.read().find(function (x) { return x.slug === button.dataset.slug && (x.size || '') === (button.dataset.size || '') && (x.color || '') === (button.dataset.color || ''); });
       if (!item) return;
-      if (button.dataset.cartAction === 'remove') BLCKSICart.remove(item.slug, item.size);
-      else BLCKSICart.update(item.slug, item.size, item.qty + (button.dataset.cartAction === 'plus' ? 1 : -1));
+      if (button.dataset.cartAction === 'remove') BLCKSICart.remove(item.slug, item.size, item.color);
+      else BLCKSICart.update(item.slug, item.size, item.qty + (button.dataset.cartAction === 'plus' ? 1 : -1), item.color);
       renderDrawer();
     });
     window.addEventListener('blcksi:cart-updated', renderDrawer);
