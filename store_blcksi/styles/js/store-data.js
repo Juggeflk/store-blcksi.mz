@@ -48,11 +48,14 @@
       }
 
 var productResult = await client.from("products")
-  .select("id,name,slug,description,price,is_new,category_id,category:categories(name,slug),product_images(image_url,position)")
+  .select("id,name,slug,description,price,is_new,category_id,category:categories(name,slug,is_active),product_images(image_url,position)")
   .eq("is_active", true)
   .order("created_at", { ascending: false });
       if (!productResult.error && Array.isArray(productResult.data) && productResult.data.length) {
-      window.BLCKSI_PRODUCTS = productResult.data.map(function (p) {
+      var visibleProducts = productResult.data.filter(function (p) {
+        return !p.category || p.category.is_active === true;
+      });
+      window.BLCKSI_PRODUCTS = visibleProducts.map(function (p) {
   var images = (p.product_images || []).sort(function (a, b) {
     return (a.position || 0) - (b.position || 0);
   });
@@ -69,7 +72,7 @@ var productResult = await client.from("products")
     category_slug: p.category && p.category.slug,
     image_url: images[0] && images[0].image_url
   };
-});  renderProducts(productResult.data.map(function (p) {
+});  renderProducts(visibleProducts.map(function (p) {
           var images = (p.product_images || []).sort(function(a,b){ return (a.position||0)-(b.position||0); });
           return {
             name: p.name, slug: p.slug, price: p.price, is_new: p.is_new,
