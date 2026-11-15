@@ -165,7 +165,8 @@
     var list = (items.data || []).map(function (item) {
       return '<p class="admin-row"><span><b>' + esc(item.product_name) +
         '</b><small>' + esc(item.product_slug || '') +
-        (item.size ? ' · Tamanho: ' + esc(item.size) : '') +\n        (item.color ? ' · Cor: ' + esc(item.color) : '') +
+        (item.size ? ' · Tamanho: ' + esc(item.size) : '') +
+        (item.color ? ' · Cor: ' + esc(item.color) : '') +
         ' · Quantidade: ' + Number(item.quantity) +
         ' · Unitário: ' + money(item.unit_price) +
         '</small></span><strong>' + money(item.line_total) + '</strong></p>';
@@ -425,10 +426,14 @@
         }
 
         var d = result.data || {};
-        alert('Limpeza concluída.\nEncomendas apagadas: ' + (d.orders_deleted || 0) +
-          '\nArtigos apagados: ' + (d.items_deleted || 0) +
-          '\nReservas apagadas: ' + (d.reservations_deleted || 0) +
-          '\nEventos apagados: ' + (d.events_deleted || 0));
+        alert('Limpeza concluída.
+Encomendas apagadas: ' + (d.orders_deleted || 0) +
+          '
+Artigos apagados: ' + (d.items_deleted || 0) +
+          '
+Reservas apagadas: ' + (d.reservations_deleted || 0) +
+          '
+Eventos apagados: ' + (d.events_deleted || 0));
         load('metrics');
       };
       return;
