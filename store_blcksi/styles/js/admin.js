@@ -165,7 +165,7 @@
     var list = (items.data || []).map(function (item) {
       return '<p class="admin-row"><span><b>' + esc(item.product_name) +
         '</b><small>' + esc(item.product_slug || '') +
-        (item.size ? ' · Tamanho: ' + esc(item.size) : '') +
+        (item.size ? ' · Tamanho: ' + esc(item.size) : '') +\n        (item.color ? ' · Cor: ' + esc(item.color) : '') +
         ' · Quantidade: ' + Number(item.quantity) +
         ' · Unitário: ' + money(item.unit_price) +
         '</small></span><strong>' + money(item.line_total) + '</strong></p>';
