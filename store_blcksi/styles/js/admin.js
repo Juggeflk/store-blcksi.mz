@@ -592,7 +592,7 @@
     if (tab === 'products') {
       var cats = await db.from('categories').select('id,name').order('name');
       var ps = await db.from('products')
-        .select('id,name,slug,category_id,price,stock,description,is_active,categories(name),product_images(id,image_url,position)')
+        .select('id,name,slug,category_id,price,stock,description,is_active,categories(name),product_images(id,product_id,image_url,position)')
         .order('created_at', { ascending: false }).limit(100);
 
       if (cats.error || ps.error) {
@@ -808,10 +808,10 @@
           var imageId=b.dataset.deleteImage;
           var old=ps.data.flatMap(function(p){return p.product_images||[];}).find(function(im){return im.id===imageId;});
           if(!old)return;
-          var path=imagePath(old.image_url);
-          if(path){var rm=await db.storage.from('product-images').remove([path]);if(rm.error){alert('Não foi possível eliminar o ficheiro: '+rm.error.message);return;}}
           var del=await db.from('product_images').delete().eq('id',imageId);
-          if(del.error){alert('Ficheiro removido, mas não foi possível actualizar a galeria: '+del.error.message);return;}
+          if(del.error){alert('Não foi possível remover a imagem da galeria: '+del.error.message);return;}
+          var path=imagePath(old.image_url);
+          if(path){var rm=await db.storage.from('product-images').remove([path]);if(rm.error){alert('Imagem removida da galeria, mas o ficheiro antigo não foi apagado: '+rm.error.message);load('products');return;}}
           alert('Imagem eliminada.');load('products');
         };
       });
