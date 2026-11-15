@@ -33,6 +33,10 @@
     return Number(value || 0).toLocaleString('pt-MZ') + ' MT';
   }
 
+  function quantityOf(item) {
+    return Number(item.quantity || item.qty || 1);
+  }
+
   function showMessage(text) {
     if (msg) msg.textContent = text;
   }
@@ -70,7 +74,7 @@
       lines.innerHTML = items.map(function (item) {
         return '<div class="cart-line">' +
           '<span>' + String(item.name || item.product_name || 'Produto') +
-          ' × ' + Number(item.quantity || 1) + '</span>' +
+          ' × ' + quantityOf(item) + '</span>' +
           '<strong>' + money(
             Number(item.price || item.unit_price || 0) *
             Number(item.quantity || 1)
@@ -110,10 +114,11 @@
     }
 
     var config = window.BLCKSI_SUPABASE || {};
-    var client = window.supabaseClient;
+    var client = window.BLCKSI_CLIENT || window.supabaseClient;
 
     if (!client && window.supabase && config.url && config.key) {
       client = window.supabase.createClient(config.url, config.key);
+      window.BLCKSI_CLIENT = client;
     }
 
     if (!client) {
@@ -134,7 +139,7 @@
           return {
             slug: item.slug || item.product_slug,
             size: item.size || null,
-            quantity: Number(item.quantity || 1)
+            quantity: quantityOf(item)
           };
         })
       };
@@ -192,7 +197,7 @@
 
       var productLines = items.map(function (item) {
         return '- ' + (item.name || item.product_name || 'Produto') +
-          ' | Qtd: ' + Number(item.quantity || 1) +
+          ' | Qtd: ' + quantityOf(item) +
           ' | ' + money(
             Number(item.price || item.unit_price || 0) *
             Number(item.quantity || 1)
