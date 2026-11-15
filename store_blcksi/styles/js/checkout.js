@@ -37,6 +37,12 @@
     return Number(item.quantity || item.qty || 1);
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>\"']/g, function (char) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;' })[char];
+    });
+  }
+
   function showMessage(text) {
     if (msg) msg.textContent = text;
   }
@@ -73,11 +79,11 @@
     } else {
       lines.innerHTML = items.map(function (item) {
         return '<div class="cart-line">' +
-          '<span>' + String(item.name || item.product_name || 'Produto') +
+          '<span>' + escapeHtml(item.name || item.product_name || 'Produto') +
           ' × ' + quantityOf(item) + '</span>' +
           '<strong>' + money(
             Number(item.price || item.unit_price || 0) *
-            Number(item.quantity || 1)
+            quantityOf(item)
           ) + '</strong></div>';
       }).join('');
     }
@@ -200,7 +206,7 @@
           ' | Qtd: ' + quantityOf(item) +
           ' | ' + money(
             Number(item.price || item.unit_price || 0) *
-            Number(item.quantity || 1)
+            quantityOf(item)
           );
       }).join('\n');
 
