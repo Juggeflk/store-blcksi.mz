@@ -32,7 +32,7 @@
         '<a class="product-card-link" href="' + url + '">' +
         '<div class="product-image"><img src="' + esc(p.image_url || "../styles/assets/img/camisa-01.webp") + '" alt="' + esc(p.name) + '" loading="lazy">' +
         (p.is_new ? '<span class="product-tag">NEW</span>' : '') +
-        '<button type="button" class="quick-buy" aria-label="Adicionar '+esc(p.name)+' ao carrinho" data-quick-buy="'+esc(p.slug)+'">＋</button></div>' +
+        '<button type="button" class="quick-buy" aria-label="Adicionar '+esc(p.name)+' ao carrinho" data-quick-buy="'+esc(p.slug)+'"><svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l1 13H4L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg></button></div>' +
         '<div class="product-meta"><div><h3>' + esc(p.name) + '</h3><strong>' + money(p.price) + '</strong></div></div></a>' +
         (colors.length ? '<div class="product-swatches" aria-label="Cores disponíveis">'+swatches+'</div>' : '') +
         '<small class="quick-buy-feedback" aria-live="polite"></small></article>';
