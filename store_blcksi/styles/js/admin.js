@@ -879,35 +879,60 @@
           saveButton.textContent = 'GUARDAR IMAGENS';
         }
 
-        input.onchange = function() {
-          clearStaged();
-          stagedFiles = Array.from(input.files || []);
-          var available = 5 - currentCount;
-          if (!stagedFiles.length) return;
-          if (stagedFiles.length > available) {
-            alert('Este produto já tem ' + currentCount + ' imagem(ns). Podes adicionar apenas ' + available + '.');
-            clearStaged();
-            return;
-          }
-          var invalid = stagedFiles.find(function(file) {
-            return !/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024;
-          });
-          if (invalid) {
-            alert('Escolhe apenas imagens JPG, PNG ou WebP até 10 MB cada. Ficheiro inválido: ' + invalid.name);
-            clearStaged();
-            return;
-          }
+        function renderStagedImages() {
+          objectUrls.forEach(function(url) { URL.revokeObjectURL(url); });
+          objectUrls = [];
           previewBox.innerHTML = stagedFiles.map(function(file, index) {
             var url = URL.createObjectURL(file);
             objectUrls.push(url);
             return '<div class="product-image-item"><img src="' + url + '" alt="Pré-visualização ' + (index + 1) + '"><div class="product-image-actions"><small>' +
               (currentCount === 0 && index === 0 ? 'CAPA PRINCIPAL' : 'NOVA IMAGEM ' + (index + 1)) +
-              '</small><small>' + esc(file.name) + '</small></div></div>';
+              '</small><small>' + esc(file.name) + '</small><button type="button" class="danger" data-remove-staged="' + index + '">REMOVER</button></div></div>';
           }).join('');
-          previewBox.hidden = false;
-          actions.hidden = false;
+          previewBox.hidden = stagedFiles.length === 0;
+          actions.hidden = stagedFiles.length === 0;
+        }
+
+        input.onchange = function() {
+          // Ler os ficheiros ANTES de limpar o input; limpá-lo primeiro apagava a selecção.
+          var newlySelected = Array.from(input.files || []);
+          input.value = '';
+          if (!newlySelected.length) return;
+
+          var available = 5 - currentCount - stagedFiles.length;
+          if (available <= 0) {
+            alert('Este produto já tem 5 imagens seleccionadas ou guardadas.');
+            return;
+          }
+
+          var invalid = newlySelected.find(function(file) {
+            return !/^image\\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024;
+          });
+          if (invalid) {
+            alert('Escolhe apenas imagens JPG, PNG ou WebP até 10 MB cada. Ficheiro inválido: ' + invalid.name);
+            return;
+          }
+
+          newlySelected.forEach(function(file) {
+            var duplicate = stagedFiles.some(function(existing) {
+              return existing.name === file.name && existing.size === file.size &&
+                existing.lastModified === file.lastModified;
+            });
+            if (!duplicate && stagedFiles.length < 5 - currentCount) stagedFiles.push(file);
+          });
+
+          if (newlySelected.length > available) {
+            alert('Só podes adicionar mais ' + available + ' imagem(ns). O limite total é 5 por produto.');
+          }
+          renderStagedImages();
         };
 
+        previewBox.addEventListener('click', function(e) {
+          var removeButton = e.target.closest('[data-remove-staged]');
+          if (!removeButton) return;
+          stagedFiles.splice(Number(removeButton.dataset.removeStaged), 1);
+          renderStagedImages();
+        });
         cancelButton.onclick = clearStaged;
         saveButton.onclick = async function() {
           if (!stagedFiles.length || saveButton.disabled) return;
