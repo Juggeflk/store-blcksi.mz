@@ -110,6 +110,7 @@
     var locked = o.status === 'cancelled';
     var canMarkTest = !o.is_test &&
       ['pending_payment', 'payment_review', 'cancelled'].includes(o.status);
+    var canCancel = ['pending_payment', 'payment_review', 'processing'].includes(o.status) && Number(o.amount_paid || 0) === 0;
 
     return '<article class="admin-row" style="align-items:flex-start;">' +
       '<div style="flex:1;min-width:220px;">' +
@@ -130,6 +131,7 @@
       '<option value="completed">Concluído</option>' +
       '<option value="cancelled">Cancelado</option></select>' +
       '<button data-save-order="' + esc(o.id) + '"' + (locked ? ' disabled' : '') + '>GUARDAR</button>' +
+      (canCancel ? '<button type="button" data-cancel-order="' + esc(o.id) + '" style="margin-top:6px;background:#8b2525;color:#fff;">CANCELAR ENCOMENDA E LIBERTAR STOCK</button>' : '') +
       (canMarkTest ? '<button type="button" data-mark-test="' + esc(o.id) +
       '" style="margin-top:6px;">MARCAR COMO TESTE</button>' : '') +
       (locked ? '<small>Encomenda cancelada e bloqueada.</small>' : '') +
@@ -508,6 +510,30 @@
             return;
           }
           alert('Encomenda atualizada com sucesso.');
+          load('orders');
+        };
+      });
+      
+      content.querySelectorAll('[data-cancel-order]').forEach(function (b) {
+        b.onclick = async function () {
+          var id = b.dataset.cancelOrder;
+          var order = r.data.find(function (o) { return o.id === id; });
+          if (!order) return;
+          if (Number(order.amount_paid || 0) > 0) {
+            alert('Esta encomenda tem pagamento registado. Não pode ser cancelada por esta ação.');
+            return;
+          }
+          if (!confirm('Confirmas o cancelamento da encomenda ' + order.order_number + '? O stock reservado será libertado.')) return;
+          b.disabled = true;
+          b.textContent = 'A CANCELAR...';
+          var x = await db.rpc('cancel_order_and_release_stock', {p_order_id: id});
+          if (x.error) {
+            alert('Não foi possível cancelar a encomenda: ' + x.error.message);
+            b.disabled = false;
+            b.textContent = 'CANCELAR ENCOMENDA E LIBERTAR STOCK';
+            return;
+          }
+          alert('Encomenda cancelada. O stock reservado foi libertado.');
           load('orders');
         };
       });
