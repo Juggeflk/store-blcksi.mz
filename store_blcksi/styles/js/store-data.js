@@ -26,10 +26,16 @@
     if (!grid) return;
     grid.innerHTML = products.slice(0, 4).map(function (p) {
       var url = "produto.html?slug=" + encodeURIComponent(p.slug || "");
-      return '<a class="product-card" href="' + url + '">' +
+      var colors = Array.isArray(p.available_colors) ? p.available_colors : [];
+      var swatches = colors.map(function(color){return '<button type="button" class="product-color-swatch" data-color="'+esc(color)+'" title="'+esc(color)+'" aria-label="'+esc(color)+'" style="--swatch:'+({'Preto':'#111','Branco':'#fff','Creme':'#e8dfc8','Castanho':'#79533a'}[color]||'#888')+'"></button>';}).join('');
+      return '<article class="product-card" data-home-product="'+esc(p.slug)+'">' +
+        '<a class="product-card-link" href="' + url + '">' +
         '<div class="product-image"><img src="' + esc(p.image_url || "../styles/assets/img/camisa-01.webp") + '" alt="' + esc(p.name) + '" loading="lazy">' +
-        (p.is_new ? '<span class="product-tag">NEW</span>' : '') + '</div>' +
-        '<div class="product-meta"><div><h3>' + esc(p.name) + '</h3><p>' + esc(p.category || "BLCKSI") + '</p></div><strong>' + money(p.price) + '</strong></div></a>';
+        (p.is_new ? '<span class="product-tag">NEW</span>' : '') +
+        '<button type="button" class="quick-buy" aria-label="Adicionar '+esc(p.name)+' ao carrinho" data-quick-buy="'+esc(p.slug)+'">＋</button></div>' +
+        '<div class="product-meta"><div><h3>' + esc(p.name) + '</h3><strong>' + money(p.price) + '</strong></div></div></a>' +
+        (colors.length ? '<div class="product-swatches" aria-label="Cores disponíveis">'+swatches+'</div>' : '') +
+        '<small class="quick-buy-feedback" aria-live="polite"></small></article>';
     }).join("");
   }
 
@@ -48,7 +54,7 @@
       }
 
 var productResult = await client.from("products")
-  .select("id,name,slug,description,price,is_new,category_id,category:categories(name,slug,is_active),product_images(image_url,position)")
+  .select("id,name,slug,description,price,is_new,available_colors,category_id,category:categories(name,slug,is_active),product_images(image_url,position)")
   .eq("is_active", true)
   .order("created_at", { ascending: false });
       if (!productResult.error && Array.isArray(productResult.data) && productResult.data.length) {
@@ -66,6 +72,7 @@ var productResult = await client.from("products")
     slug: p.slug,
     description: p.description || "",
     price: p.price,
+    available_colors: p.available_colors || [],
     is_new: p.is_new,
     category_id: p.category_id,
     category: p.category && p.category.name,
@@ -77,6 +84,7 @@ var productResult = await client.from("products")
           return {
             name: p.name, slug: p.slug, price: p.price, is_new: p.is_new,
             category: p.category && p.category.name,
+            available_colors: p.available_colors || [],
             image_url: images[0] && images[0].image_url
           };
         }));
