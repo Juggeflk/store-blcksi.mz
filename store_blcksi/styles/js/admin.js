@@ -592,80 +592,243 @@
     if (tab === 'products') {
       var cats = await db.from('categories').select('id,name').order('name');
       var ps = await db.from('products')
-        .select('name,slug,price,stock,is_active,categories(name)')
-        .order('created_at', { ascending: false })
-        .limit(100);
+        .select('id,name,slug,category_id,price,stock,description,is_active,categories(name),product_images(id,image_url,position)')
+        .order('created_at', { ascending: false }).limit(100);
 
       if (cats.error || ps.error) {
         content.textContent = (cats.error || ps.error).message;
         return;
       }
 
+      function slugify(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      }
+      function imagePath(url) {
+        var marker = '/storage/v1/object/public/product-images/';
+        var at = String(url || '').indexOf(marker);
+        return at < 0 ? null : decodeURIComponent(String(url).slice(at + marker.length));
+      }
+      function publicImageUrl(path) {
+        return db.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+      }
+      function imageCard(im, index, count) {
+        return '<div class="product-image-item">' +
+          '<img src="' + esc(im.image_url) + '" alt="Imagem ' + (index + 1) + '">' +
+          '<div class="product-image-actions">' +
+          '<small>' + (im.position === 0 ? 'CAPA PRINCIPAL' : 'IMAGEM ' + (index + 1)) + '</small>' +
+          (im.position !== 0 ? '<button type="button" data-cover-image="' + esc(im.id) + '">DEFINIR COMO CAPA</button>' : '') +
+          '<label class="product-image-replace">TROCAR IMAGEM<input type="file" accept="image/jpeg,image/png,image/webp" data-replace-image="' + esc(im.id) + '"></label>' +
+          '<button type="button" data-delete-image="' + esc(im.id) + '" class="danger">ELIMINAR</button>' +
+          '</div></div>';
+      }
+      function productCard(p) {
+        var images = (p.product_images || []).slice().sort(function(a,b){return a.position-b.position;});
+        return '<article class="product-manage-card" data-product-card="' + esc(p.id) + '">' +
+          '<div class="product-manage-head"><div><b>' + esc(p.name) + '</b><small>' +
+          esc(p.categories && p.categories.name || 'Sem categoria') + ' · ' + money(p.price) +
+          ' · Stock: ' + Number(p.stock) + '</small></div>' +
+          '<button type="button" data-edit-product="' + esc(p.id) + '">EDITAR DADOS</button></div>' +
+          '<div class="product-gallery-admin">' +
+          (images.map(imageCard).join('') || '<p class="cart-small">Ainda sem fotografias.</p>') +
+          '</div><div class="product-manage-footer">' +
+          '<small>' + images.length + ' de 5 imagens</small>' +
+          (images.length < 5 ? '<label class="product-add-image">+ ADICIONAR IMAGEM<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-add-images="' + esc(p.id) + '"></label>' : '<small>Limite de 5 imagens atingido.</small>') +
+          '<button type="button" data-product-toggle="' + esc(p.slug) + '" data-active="' + p.is_active + '">' +
+          (p.is_active ? 'DESATIVAR PRODUTO' : 'ACTIVAR PRODUTO') + '</button></div>' +
+          '<form class="product-edit-form" data-edit-form="' + esc(p.id) + '" hidden>' +
+          '<label>Nome do produto<input name="name" value="' + esc(p.name) + '" required></label>' +
+          '<label>Identificador (gerado pelo nome)<input name="slug" value="' + esc(p.slug) + '" required></label>' +
+          '<label>Categoria<select name="category_id"><option value="">Sem categoria</option>' +
+          (cats.data || []).map(function(c){return '<option value="' + c.id + '"' + (c.id===p.category_id?' selected':'') + '>' + esc(c.name) + '</option>';}).join('') + '</select></label>' +
+          '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" value="' + Number(p.price) + '" required></label>' +
+          '<label>Quantidade em stock<input name="stock" type="number" min="0" step="1" value="' + Number(p.stock) + '" required></label>' +
+          '<label class="wide">Descrição<textarea name="description">' + esc(p.description || '') + '</textarea></label>' +
+          '<button type="submit">GUARDAR ALTERAÇÕES</button><button type="button" data-close-edit="' + esc(p.id) + '">FECHAR</button></form></article>';
+      }
+
       content.innerHTML =
         '<h2>ADICIONAR PRODUTO</h2>' +
-        '<form id="productForm" class="admin-form">' +
-        '<input name="name" placeholder="Nome" required>' +
-        '<input name="slug" placeholder="slug-produto" required>' +
-        '<select name="category_id"><option value="">Sem categoria</option>' +
-        (cats.data || []).map(function (c) {
-          return '<option value="' + c.id + '">' + esc(c.name) + '</option>';
-        }).join('') + '</select>' +
-        '<input name="price" type="number" min="0" step="0.01" placeholder="Preço em MT" required>' +
-        '<input name="stock" type="number" min="0" step="1" placeholder="Stock" value="0" required>' +
-        '<textarea name="description" placeholder="Descrição"></textarea>' +
-        '<input name="image_url" type="url" placeholder="URL da imagem principal">' +
-        '<button class="btn btn-light">CRIAR PRODUTO</button></form>' +
-        '<h2>CATÁLOGO</h2><div class="admin-table">' +
-        (ps.data || []).map(function (p) {
-          return '<p class="admin-row"><span><b>' + esc(p.name) +
-            '</b><small> / ' + esc(p.slug) + ' · ' + money(p.price) +
-            ' · stock ' + p.stock + '</small></span>' +
-            '<button data-product-toggle="' + esc(p.slug) +
-            '" data-active="' + p.is_active + '">' +
-            (p.is_active ? 'DESATIVAR' : 'ATIVAR') + '</button></p>';
-        }).join('') + '</div>';
+        '<p class="admin-help">Preenche os dados e selecciona entre 1 e 5 fotografias. A primeira será a capa principal; poderás trocar, eliminar ou mudar a capa depois.</p>' +
+        '<form id="productForm" class="admin-form product-create-form">' +
+        '<label>Nome do produto<input name="name" placeholder="Ex.: Camiseta BLCKSI Essential" required></label>' +
+        '<label>Identificador do produto<input name="slug" placeholder="Gerado automaticamente" required></label>' +
+        '<label>Categoria<select name="category_id"><option value="">Escolher categoria</option>' +
+        (cats.data || []).map(function(c){return '<option value="' + c.id + '">' + esc(c.name) + '</option>';}).join('') + '</select></label>' +
+        '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 1500" required></label>' +
+        '<label>Quantidade disponível em stock<input name="stock" type="number" min="0" step="1" value="0" required></label>' +
+        '<label class="wide">Descrição do produto<textarea name="description" placeholder="Material, corte, tamanhos, detalhes..."></textarea></label>' +
+        '<label class="wide">Fotografias do produto (1 a 5)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required><small>Formatos: JPG, PNG ou WebP. Máximo 5 imagens, até 10 MB cada.</small></label>' +
+        '<div id="newImagePreview" class="product-gallery-admin wide"></div>' +
+        '<button class="btn btn-light" type="submit">CRIAR PRODUTO</button></form>' +
+        '<h2>CATÁLOGO E GESTÃO DE IMAGENS</h2>' +
+        '<div class="product-manage-list">' + (ps.data || []).map(productCard).join('') + '</div>';
 
-      content.querySelectorAll('[data-product-toggle]').forEach(function (b) {
-        b.onclick = async function () {
-          var x = await db.from('products')
-            .update({is_active: b.dataset.active !== 'true'})
-            .eq('slug', b.dataset.productToggle);
-          if (x.error) alert(x.error.message);
-          else load('products');
-        };
+      var createForm = document.getElementById('productForm');
+      var imageInput = createForm.elements.images;
+      var preview = document.getElementById('newImagePreview');
+
+      function previewFiles() {
+        var files = Array.from(imageInput.files || []);
+        if (files.length > 5) {
+          alert('Podes seleccionar no máximo 5 imagens por produto.');
+          imageInput.value = '';
+          preview.innerHTML = '';
+          return;
+        }
+        preview.innerHTML = files.map(function(file, i) {
+          return '<div class="product-image-item"><img src="' + URL.createObjectURL(file) + '" alt="Pré-visualização ' + (i+1) + '"><small>' +
+            (i===0?'CAPA PRINCIPAL':'IMAGEM '+(i+1)) + '</small><small>' + esc(file.name) + '</small></div>';
+        }).join('');
+      }
+      imageInput.addEventListener('change', previewFiles);
+      createForm.elements.name.addEventListener('input', function() {
+        createForm.elements.slug.value = slugify(createForm.elements.name.value);
+      });
+      createForm.elements.slug.addEventListener('input', function() {
+        createForm.elements.slug.dataset.manual = 'true';
       });
 
-      document.getElementById('productForm').onsubmit = async function (e) {
+      async function uploadImages(productId, files, startPosition) {
+        var rows = [];
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 10 * 1024 * 1024) {
+            throw new Error('Imagem inválida ou superior a 10 MB: ' + file.name);
+          }
+          var ext = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+          var path = productId + '/' + Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+          var up = await db.storage.from('product-images').upload(path, file, { upsert: false, contentType: file.type });
+          if (up.error) throw up.error;
+          rows.push({ product_id: productId, image_url: publicImageUrl(path), position: startPosition + i });
+        }
+        if (rows.length) {
+          var ins = await db.from('product_images').insert(rows);
+          if (ins.error) throw ins.error;
+        }
+      }
+
+      createForm.onsubmit = async function(e) {
         e.preventDefault();
-        var d = new FormData(e.target);
-        var payload = {
-          name: d.get('name'),
-          slug: d.get('slug').toLowerCase().trim(),
+        var files = Array.from(imageInput.files || []);
+        if (files.length < 1 || files.length > 5) {
+          alert('Selecciona entre 1 e 5 imagens para o produto.');
+          return;
+        }
+        var d = new FormData(createForm);
+        var button = createForm.querySelector('button[type="submit"]');
+        button.disabled = true; button.textContent = 'A CRIAR PRODUTO...';
+        var result = await db.from('products').insert({
+          name: String(d.get('name')).trim(),
+          slug: slugify(d.get('slug')),
           category_id: d.get('category_id') || null,
           price: Number(d.get('price')),
           stock: Number(d.get('stock')),
           description: d.get('description'),
           is_active: true
-        };
-
-        var x = await db.from('products').insert(payload).select('id').single();
-        if (x.error) {
-          alert(x.error.message);
-          return;
+        }).select('id').single();
+        if (result.error) {
+          alert('Não foi possível criar o produto: ' + result.error.message);
+          button.disabled = false; button.textContent = 'CRIAR PRODUTO'; return;
         }
-
-        if (d.get('image_url')) {
-          var im = await db.from('product_images').insert({
-            product_id: x.data.id,
-            image_url: d.get('image_url'),
-            position: 0
-          });
-          if (im.error) {
-            alert('Produto criado, mas a imagem não foi associada: ' + im.error.message);
-          }
+        try {
+          await uploadImages(result.data.id, files, 0);
+          alert('Produto criado com ' + files.length + ' imagem(ns).');
+          load('products');
+        } catch (err) {
+          alert('O produto foi criado, mas houve um erro ao guardar as imagens: ' + err.message + '. Podes adicioná-las na gestão do produto.');
+          load('products');
         }
-        load('products');
       };
+
+      content.querySelectorAll('[data-product-toggle]').forEach(function(b) {
+        b.onclick = async function() {
+          var x = await db.from('products').update({is_active:b.dataset.active!=='true'}).eq('slug',b.dataset.productToggle);
+          if (x.error) alert(x.error.message); else load('products');
+        };
+      });
+      content.querySelectorAll('[data-edit-product]').forEach(function(b) {
+        b.onclick = function() {
+          var form = content.querySelector('[data-edit-form="' + b.dataset.editProduct + '"]');
+          if (form) form.hidden = !form.hidden;
+        };
+      });
+      content.querySelectorAll('[data-close-edit]').forEach(function(b) {
+        b.onclick = function() { var form=content.querySelector('[data-edit-form="' + b.dataset.closeEdit + '"]'); if(form) form.hidden=true; };
+      });
+      content.querySelectorAll('[data-edit-form]').forEach(function(form) {
+        form.elements.name.addEventListener('input',function(){form.elements.slug.value=slugify(form.elements.name.value);});
+        form.onsubmit = async function(e) {
+          e.preventDefault();
+          var d = new FormData(form);
+          var x = await db.from('products').update({
+            name:String(d.get('name')).trim(), slug:slugify(d.get('slug')),
+            category_id:d.get('category_id')||null, price:Number(d.get('price')),
+            stock:Number(d.get('stock')), description:d.get('description')
+          }).eq('id',form.dataset.editForm);
+          if(x.error) alert('Erro ao actualizar produto: '+x.error.message); else {alert('Dados do produto actualizados.');load('products');}
+        };
+      });
+
+      content.querySelectorAll('[data-add-images]').forEach(function(input) {
+        input.onchange = async function() {
+          var files=Array.from(input.files||[]);
+          var productId=input.dataset.addImages;
+          var product=ps.data.find(function(p){return p.id===productId;});
+          var count=(product.product_images||[]).length;
+          if(count+files.length>5){alert('Este produto já tem '+count+' imagem(ns). Podes adicionar apenas '+(5-count)+'.');input.value='';return;}
+          try { await uploadImages(productId,files,count); alert('Imagem(ns) adicionada(s).');load('products'); }
+          catch(err){alert('Erro ao adicionar imagens: '+err.message);}
+        };
+      });
+      content.querySelectorAll('[data-replace-image]').forEach(function(input) {
+        input.onchange = async function() {
+          var file=input.files&&input.files[0]; if(!file)return;
+          if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>10*1024*1024){alert('Escolhe JPG, PNG ou WebP até 10 MB.');return;}
+          var imageId=input.dataset.replaceImage;
+          var old=(ps.data.flatMap(function(p){return p.product_images||[];})).find(function(im){return im.id===imageId;});
+          if(!old)return;
+          try {
+            var ext=file.type==='image/jpeg'?'jpg':file.type.split('/')[1];
+            var path=old.product_id+'/'+Date.now()+'-replace-'+Math.random().toString(36).slice(2)+'.'+ext;
+            var up=await db.storage.from('product-images').upload(path,file,{upsert:false,contentType:file.type});
+            if(up.error)throw up.error;
+            var url=publicImageUrl(path);
+            var upd=await db.from('product_images').update({image_url:url}).eq('id',imageId);
+            if(upd.error){await db.storage.from('product-images').remove([path]);throw upd.error;}
+            var oldPath=imagePath(old.image_url);
+            if(oldPath) await db.storage.from('product-images').remove([oldPath]);
+            alert('Imagem substituída com sucesso.');load('products');
+          } catch(err){alert('Não foi possível trocar a imagem: '+err.message);}
+        };
+      });
+      content.querySelectorAll('[data-delete-image]').forEach(function(b) {
+        b.onclick = async function() {
+          if(!confirm('Eliminar definitivamente esta imagem do produto?'))return;
+          var imageId=b.dataset.deleteImage;
+          var old=ps.data.flatMap(function(p){return p.product_images||[];}).find(function(im){return im.id===imageId;});
+          if(!old)return;
+          var path=imagePath(old.image_url);
+          if(path){var rm=await db.storage.from('product-images').remove([path]);if(rm.error){alert('Não foi possível eliminar o ficheiro: '+rm.error.message);return;}}
+          var del=await db.from('product_images').delete().eq('id',imageId);
+          if(del.error){alert('Ficheiro removido, mas não foi possível actualizar a galeria: '+del.error.message);return;}
+          alert('Imagem eliminada.');load('products');
+        };
+      });
+      content.querySelectorAll('[data-cover-image]').forEach(function(b) {
+        b.onclick = async function() {
+          var imageId=b.dataset.coverImage;
+          var product=ps.data.find(function(p){return (p.product_images||[]).some(function(im){return im.id===imageId;});});
+          if(!product)return;
+          var ordered=(product.product_images||[]).slice().sort(function(a,b){return a.position-b.position;});
+          var updates=ordered.map(function(im,index){return db.from('product_images').update({position:im.id===imageId?0:(index+1)}).eq('id',im.id);});
+          var results=await Promise.all(updates);
+          var failed=results.find(function(x){return x.error;});
+          if(failed){alert('Não foi possível alterar a capa: '+failed.error.message);return;}
+          alert('Imagem principal actualizada.');load('products');
+        };
+      });
+      return;
     }
   }
 
