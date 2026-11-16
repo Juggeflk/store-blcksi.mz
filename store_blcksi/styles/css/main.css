@@ -203,3 +203,6 @@ html[data-theme="neon"]{--bg:#080808;--surface:#111;--surface-2:#191919;--line:#
 .store-home .drop-section .product-card .product-swatches{min-height:30px;align-items:center}
 .store-home .drop-section .product-card .product-color-swatch{border:1px solid #777;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 .store-home .drop-section .product-card .product-color-swatch.selected{outline:2px solid #111;outline-offset:2px}
+
+/* BLCKSI — ícones unificados de compra e carrinho */
+.quick-buy{font-size:0;line-height:0}.quick-buy svg{width:19px;height:19px;display:block}.cart-link svg{width:19px;height:19px;display:block;flex:0 0 auto}.cart-link{gap:10px}.drawer-empty-icon{display:grid;place-items:center;margin-bottom:12px}.drawer-empty-icon svg{width:34px;height:34px;stroke:currentColor;opacity:.8}
