@@ -645,7 +645,7 @@
     if (tab === 'products') {
       var cats = await db.from('categories').select('id,name,is_active').order('name');
       var ps = await db.from('products')
-        .select('id,name,slug,category_id,price,stock,description,available_colors,is_active,categories(name),product_images(id,product_id,image_url,position)')
+        .select('id,name,slug,category_id,price,stock,description,available_colors,sizes,is_active,categories(name),product_images(id,product_id,image_url,position)')
         .order('created_at', { ascending: false }).limit(100);
 
       if (cats.error || ps.error) {
@@ -665,6 +665,19 @@
       function readColors(form) {
         var values = Array.from(form.querySelectorAll('input[name="available_colors"]:checked')).map(function(input){return input.value;});
         var custom = String((form.elements.custom_colors && form.elements.custom_colors.value) || '').split(',').map(function(value){return value.trim();}).filter(Boolean);
+        custom.forEach(function(value){if(!values.some(function(existing){return existing.toLowerCase()===value.toLowerCase();})) values.push(value);});
+        return values;
+      }
+      function sizeFields(selected) {
+        var standard = ['S','M','L','XL'];
+        selected = Array.isArray(selected) ? selected : ['S','M','L','XL'];
+        return '<fieldset class="admin-color-field wide"><legend>Tamanhos disponíveis</legend><div class="admin-color-options">' +
+          standard.map(function(size){return '<label><input type="checkbox" name="available_sizes" value="'+size+'" '+(selected.indexOf(size)>=0?'checked':'')+'> '+size+'</label>';}).join('') +
+          '</div><label>Outros tamanhos (separados por vírgula)<input name="custom_sizes" value="'+esc(selected.filter(function(size){return standard.indexOf(size)<0;}).join(', '))+'" placeholder="Ex.: XS, XXL, 2XL, 36, 38"></label><small>Marca apenas os tamanhos que este produto realmente tem disponíveis. Podes deixar sem tamanhos para produtos sem numeração.</small></fieldset>';
+      }
+      function readSizes(form) {
+        var values = Array.from(form.querySelectorAll('input[name="available_sizes"]:checked')).map(function(input){return input.value;});
+        var custom = String((form.elements.custom_sizes && form.elements.custom_sizes.value) || '').split(',').map(function(value){return value.trim();}).filter(Boolean);
         custom.forEach(function(value){if(!values.some(function(existing){return existing.toLowerCase()===value.toLowerCase();})) values.push(value);});
         return values;
       }
@@ -708,7 +721,7 @@
           '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" value="' + Number(p.price) + '" required></label>' +
           '<label>Quantidade em stock<input name="stock" type="number" min="0" step="1" value="' + Number(p.stock) + '" required></label>' +
           '<label class="wide">Descrição<textarea name="description">' + esc(p.description || '') + '</textarea></label>' +
-          colorFields(p.available_colors) +
+          colorFields(p.available_colors) + sizeFields(p.sizes) +
           '<button type="submit">GUARDAR ALTERAÇÕES</button><button type="button" data-close-edit="' + esc(p.id) + '">FECHAR</button></form></article>';
       }
 
@@ -723,7 +736,7 @@
         '<label>Preço de venda (MT)<input name="price" type="number" min="0" step="0.01" placeholder="Ex.: 1500" required></label>' +
         '<label>Quantidade disponível em stock<input name="stock" type="number" min="0" step="1" value="0" required></label>' +
         '<label class="wide">Descrição do produto<textarea name="description" placeholder="Material, corte, tamanhos, detalhes..."></textarea></label>' +
-        colorFields([]) +
+        colorFields([]) + sizeFields(['S','M','L','XL']) +
         '<label class="wide">Fotografias do produto (escolhe de 1 a 5)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple><small>Escolhe apenas a quantidade que quiseres: 1, 2, 3, 4 ou 5 fotografias. Não é necessário preencher todas. Formatos: JPG, PNG ou WebP; máximo 10 MB cada.</small></label>' +
         '<div id="newImagePreview" class="product-gallery-admin wide"></div>' +
         '<button class="btn btn-light" type="submit">CRIAR PRODUTO</button></form>' +
@@ -823,6 +836,7 @@
           stock: Number(d.get('stock')),
           description: d.get('description'),
           available_colors: readColors(createForm),
+          sizes: readSizes(createForm),
           is_active: true
         }).select('id').single();
         if (result.error) {
@@ -863,7 +877,7 @@
             name:String(d.get('name')).trim(), slug:slugify(d.get('slug')),
             category_id:d.get('category_id')||null, price:Number(d.get('price')),
             stock:Number(d.get('stock')), description:d.get('description'),
-            available_colors:readColors(form)
+            available_colors:readColors(form), sizes:readSizes(form)
           }).eq('id',form.dataset.editForm);
           if(x.error) alert('Erro ao actualizar produto: '+x.error.message); else {alert('Dados do produto actualizados.');load('products');}
         };
