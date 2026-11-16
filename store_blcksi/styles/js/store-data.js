@@ -4,13 +4,6 @@
   var hasSupabase = config.url && config.key &&
     !config.url.includes("COLOQUE_AQUI") && !config.key.includes("COLOQUE_AQUI");
 
-  var fallbackProducts = [
-    { name: "STAY WEIRD", category: "T-shirt · BLCKSI", image_url: "../styles/assets/img/camisa-02.webp", price: 950, is_new: true, slug: "blcksi-t-shirt-01" },
-    { name: "CULTURE OF AMBITION", category: "T-shirt · BLCKSI", image_url: "../styles/assets/img/camisa-03.webp", price: 950, is_new: true, slug: "blcksi-t-shirt-02" },
-    { name: "VIBIN", category: "T-shirt · BLCKSI", image_url: "../styles/assets/img/camisa-59.webp", price: 950, is_new: false, slug: "blcksi-t-shirt-03" },
-    { name: "NANAMI KENTO", category: "T-shirt · BLCKSI", image_url: "../styles/assets/img/camisa-07.webp", price: 1200, is_new: false, slug: "blcksi-t-shirt-04" }
-  ];
-
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>\"']/g, function (c) {
       return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
@@ -24,6 +17,7 @@
   function renderProducts(products) {
     var grid = document.getElementById("homeProducts");
     if (!grid) return;
+    if (!products || !products.length) { grid.innerHTML = '<p class="product-loading">Ainda não há peças disponíveis neste momento.</p>'; return; }
     grid.innerHTML = products.slice(0, 4).map(function (p) {
       var url = "produto.html?slug=" + encodeURIComponent(p.slug || "");
       var colors = Array.isArray(p.available_colors) ? p.available_colors : [];
@@ -57,7 +51,7 @@ var productResult = await client.from("products")
   .select("id,name,slug,description,price,is_new,available_colors,category_id,category:categories(name,slug,is_active),product_images(image_url,position)")
   .eq("is_active", true)
   .order("created_at", { ascending: false });
-      if (!productResult.error && Array.isArray(productResult.data) && productResult.data.length) {
+      if (!productResult.error && Array.isArray(productResult.data)) {
       var visibleProducts = productResult.data.filter(function (p) {
         return !p.category || p.category.is_active === true;
       });
@@ -88,16 +82,22 @@ var productResult = await client.from("products")
             image_url: images[0] && images[0].image_url
           };
         }));
+      } else {
+        renderProducts([]);
+        window.BLCKSI_PRODUCTS = [];
       }
       return true;
     } catch (err) {
-      console.warn("BLCKSI Supabase: fallback local ativo.", err);
+      console.warn("BLCKSI Supabase: não foi possível carregar o catálogo.", err);
+      renderProducts([]);
+      window.BLCKSI_PRODUCTS = [];
       return false;
     }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    renderProducts(fallbackProducts);
-    loadSupabase();
+    loadSupabase().then(function (ok) {
+      if (!ok) renderProducts([]);
+    });
   });
 })();
