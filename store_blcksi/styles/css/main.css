@@ -221,3 +221,9 @@ body:not(.store-home) .cart-count{position:static;display:inline-grid;place-item
 
 /* BLCKSI wordmark — BLK branco + SI verde neon, consistente em todas as páginas */
 .site-header .logo{display:inline-flex;align-items:baseline;gap:0;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase;white-space:nowrap}.site-header .logo strong{font-size:28px;font-weight:900;color:var(--text)}.site-header .logo .logo-accent{display:inline-block;font-size:28px;font-weight:900;letter-spacing:-1.5px;color:#D8FF3E;font-style:normal}.store-home .site-header .logo .logo-accent{color:#D8FF3E}@media(max-width:760px){.site-header .logo strong,.site-header .logo .logo-accent{font-size:25px}}
+
+/* NAVBAR FIX 2026-11-16 — logótipo curto BLK + SI, sem duplicação */
+.site-header .logo{display:inline-flex!important;align-items:baseline!important;justify-content:center!important;gap:0!important;white-space:nowrap!important;letter-spacing:-1.5px!important}
+.site-header .logo>strong{font-size:28px!important;line-height:1!important;font-weight:900!important;color:#f5f5f2!important;letter-spacing:-1.5px!important}
+.site-header .logo>span.logo-accent{display:inline!important;font-size:28px!important;line-height:1!important;font-weight:900!important;color:#D8FF3E!important;letter-spacing:-1.5px!important;border:0!important;padding:0!important;margin:0!important;font-style:normal!important}
+@media(max-width:760px){.site-header .logo>strong,.site-header .logo>span.logo-accent{font-size:25px!important}.site-header>.wrap:not(.header-inner)>.logo{margin:0 auto!important}.site-header>.wrap:not(.header-inner){justify-content:space-between!important}}
