@@ -714,7 +714,7 @@
 
       content.innerHTML =
         '<h2>ADICIONAR PRODUTO</h2>' +
-        '<p class="admin-help">Preenche os dados e selecciona entre 1 e 5 fotografias. A primeira será a capa principal; poderás trocar, eliminar ou mudar a capa depois.</p>' +
+        '<p class="admin-help">Preenche os dados e escolhe livremente de 1 a 5 fotografias. Não precisas de seleccionar cinco. A primeira será a capa principal; poderás trocar, eliminar ou mudar a capa depois.</p>' +
         '<form id="productForm" class="admin-form product-create-form">' +
         '<label>Nome do produto<input name="name" placeholder="Ex.: Camiseta BLCKSI Essential" required></label>' +
         '<label>Identificador do produto<input name="slug" placeholder="Gerado automaticamente" required></label>' +
@@ -724,7 +724,7 @@
         '<label>Quantidade disponível em stock<input name="stock" type="number" min="0" step="1" value="0" required></label>' +
         '<label class="wide">Descrição do produto<textarea name="description" placeholder="Material, corte, tamanhos, detalhes..."></textarea></label>' +
         colorFields([]) +
-        '<label class="wide">Fotografias do produto (1 a 5)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required><small>Formatos: JPG, PNG ou WebP. Máximo 5 imagens, até 10 MB cada.</small></label>' +
+        '<label class="wide">Fotografias do produto (escolhe de 1 a 5)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple><small>Escolhe apenas a quantidade que quiseres: 1, 2, 3, 4 ou 5 fotografias. Não é necessário preencher todas. Formatos: JPG, PNG ou WebP; máximo 10 MB cada.</small></label>' +
         '<div id="newImagePreview" class="product-gallery-admin wide"></div>' +
         '<button class="btn btn-light" type="submit">CRIAR PRODUTO</button></form>' +
         '<h2>CATÁLOGO E GESTÃO DE IMAGENS</h2>' +
