@@ -164,12 +164,10 @@ document.addEventListener("DOMContentLoaded", function () {
 // Nesta fase funcionam a partir desta configuração local. Na integração Supabase,
 // a fonte será substituída pela tabela `categories`, sem alterar o HTML da homepage.
 window.BLCKSI_CATEGORIES = window.BLCKSI_CATEGORIES || [
-  { name: "Camisetas", description: "Peças essenciais BLCKSI", url: "camisa.html" },
-  { name: "Camisolas", description: "Drops e novas silhuetas", url: "camisola.html" },
-  { name: "Calças", description: "Streetwear em construção", url: "calca.html" },
-  { name: "Bonés", description: "Acessórios de identidade", url: "bone.html" },
-  { name: "Acessórios", description: "Completa o teu look", url: "acessorio.html" },
-  { name: "Coleções", description: "Edições e lançamentos especiais", url: "preto.html" }
+  { name: "Camisetas", description: "Peças essenciais BLCKSI", url: "categoria.html?slug=camisetas" },
+  { name: "Camisolas", description: "Drops e novas silhuetas", url: "categoria.html?slug=camisolas" },
+  { name: "Calças", description: "Streetwear em construção", url: "categoria.html?slug=calcas" },
+  { name: "Bonés", description: "Acessórios de identidade", url: "categoria.html?slug=bones" }
 ];
 
 function renderBLCKSICategories(categories) {
