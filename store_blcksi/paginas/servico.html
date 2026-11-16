@@ -1,70 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<script>(function(){try{var t=localStorage.getItem("blcksiTema");document.documentElement.setAttribute("data-theme", t==="neon"?"neon":"dark");}catch(e){}})();</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Serviços — BLCKSI</title>
-<link rel="stylesheet" href="../styles/css/main.css?v=blcksi-navbar-fix-20261116">
-<link rel="stylesheet" href="../styles/css/local-icons.css?v=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Serviços e personalização de peças BLCKSI.">
+  <title>Serviços — BLCKSI Store</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles/css/main.css?v=blcksi-pages-refresh-20261116">
+  <link rel="stylesheet" href="../styles/css/local-icons.css?v=1">
 </head>
-<body>
-
+<body class="store-home">
 <header class="site-header">
-  <div class="wrap">
-    <a href="index.html" class="logo"><strong>BLK</strong><span class="logo-accent">SI</span></a>
-    <nav class="nav-links">
-      <a href="sobre.html">sobre</a>
-      <a href="servico.html">serviços</a>
-      <a href="contacto.html">contacto</a>
+  <div class="wrap header-inner">
+    <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
+    <a href="index.html" class="logo" aria-label="BLCKSI Store — início"><strong>BLK</strong><span class="logo-accent">SI</span></a>
+    <nav class="nav-links" aria-label="Navegação principal">
+      <a href="index.html#novidades">Novidades</a><a href="index.html#categorias">Categorias</a><a href="sobre.html">A BLCKSI</a><a href="servico.html" aria-current="page">Serviços</a><a href="contacto.html">Contacto</a>
     </nav>
-    <button class="theme-toggle" id="themeToggle" aria-label="alternar tema">
-      <svg class="ti ti-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5z"/></svg>
-    </button>
-    <button class="menu-toggle" aria-label="abrir menu">
-      <svg class="ti ti-menu-2" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
+    <div class="nav-actions">
+      <a class="icon-button" href="index.html#categorias" aria-label="Explorar categorias"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></a>
+      <a class="cart-link" href="carrinho.html" aria-label="Abrir carrinho"><svg viewBox="0 0 24 24" aria-hidden="true" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l1 13H4L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg></a>
+    </div>
   </div>
 </header>
-
-<section class="page-hero">
-  <div class="wrap">
-    <div class="eyebrow">SERVIÇOS</div>
-    <h1>Personalização de peças</h1>
+<main>
+  <section class="page-hero"><div class="wrap">
+    <p class="eyebrow">BLCKSI / SERVIÇOS</p>
+    <h1>A TUA IDEIA.<br><em>A TUA PEÇA.</em></h1>
     <p>Além do catálogo, também trabalhamos peças sob encomenda com o seu toque pessoal.</p>
-  </div>
-</section>
-
-<section>
-  <div class="wrap" style="max-width:640px;">
-    <div class="service-detail">
-      <h3>Como funciona</h3>
-      <p>Envie a sua ideia e trabalhamos junto consigo para transformar numa peça única, com o acabamento BLCKSI.</p>
-      <div class="service-steps">
-        <div class="service-step"><span class="n">1</span> Entra em contacto e descreve a peça que quer.</div>
-        <div class="service-step"><span class="n">2</span> Enviamos uma proposta com preço e prazo.</div>
-        <div class="service-step"><span class="n">3</span> Confirma o pedido e o pagamento.</div>
-        <div class="service-step"><span class="n">4</span> Produzimos e combinamos a entrega.</div>
-      </div>
+  </div></section>
+  <section class="section-block"><div class="wrap">
+    <div class="section-heading"><div><p class="eyebrow">PERSONALIZAÇÃO</p><h2>COMO<br><span>FUNCIONA.</span></h2></div><p class="section-note">Envia a tua ideia e trabalhamos contigo para transformar numa peça única, com o acabamento BLCKSI.</p></div>
+    <div class="brand-grid service-steps">
+      <article><span>01 —</span><h3>PARTILHA A IDEIA</h3><p>Entra em contacto e descreve a peça que queres.</p></article>
+      <article><span>02 —</span><h3>RECEBE A PROPOSTA</h3><p>Enviamos uma proposta com preço e prazo.</p></article>
+      <article><span>03 —</span><h3>CONFIRMA</h3><p>Confirma o pedido e o pagamento.</p></article>
     </div>
-
-    <a href="contacto.html" class="btn">falar sobre um pedido</a>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <span class="footer-copy">BLCKSI © 2026</span>
-    <div class="footer-links">
-      <a href="index.html">início</a>
-      <a href="contacto.html">contacto</a>
-    
-      <a href="trocas-devolucoes.html">trocas e devoluções</a>
+    <div class="campaign-copy" style="max-width:720px;margin:55px auto 0;text-align:center">
+      <p class="eyebrow">PRÓXIMO PASSO</p><h2>VAMOS CRIAR<br><em>ALGO TEU.</em></h2>
+      <p>Depois da confirmação, produzimos e combinamos a entrega.</p>
+      <a href="contacto.html" class="btn btn-light">FALAR SOBRE UM PEDIDO <span>↗</span></a>
     </div>
-  </div>
-</footer>
-
-<script src="../styles/js/main.js?v=1783988684"></script>
-<script src="../styles/js/site-ui.js?v=blcksi-v71"></script>
+  </div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer-top">
+  <div class="footer-brand"><a href="index.html" class="footer-logo">BLK<span>SI.</span></a><p>STREETWEAR · CULTURE · EXPRESSION</p><small>Feito para quem escolhe ser diferente.</small></div>
+  <div class="footer-column"><strong>EXPLORAR</strong><a href="index.html#novidades">Novidades</a><a href="index.html#categorias">Categorias</a><a href="sobre.html">A BLCKSI</a></div>
+  <div class="footer-column"><strong>APOIO</strong><a href="servico.html">Serviços</a><a href="contacto.html">Contacto</a><a href="trocas-devolucoes.html">Trocas & Devoluções</a></div>
+  <div class="footer-column"><strong>LOCALIZAÇÃO</strong><span>Moçambique</span><span>Atendimento via WhatsApp</span></div>
+</div><div class="wrap footer-bottom"><span>© 2026 BLCKSI STORE. TODOS OS DIREITOS RESERVADOS.</span><span>MOÇAMBIQUE · BLK / 001</span></div></footer>
+<script src="../styles/js/site-ui.js?v=blcksi-v72"></script>
 </body>
 </html>
