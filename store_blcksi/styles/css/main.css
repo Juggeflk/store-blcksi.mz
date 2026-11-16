@@ -218,3 +218,6 @@ body:not(.store-home) .cart-link:hover{background:#f4f4f0;color:#080808}
 body:not(.store-home) .cart-link svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
 body:not(.store-home) .cart-count{position:static;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:0;border-radius:50%;background:var(--accent);color:#080808;font-size:10px;font-weight:700;line-height:1;letter-spacing:normal;box-shadow:none;font-variant-numeric:tabular-nums;transition:none}
 @media(max-width:768px){body:not(.store-home) .cart-link{height:38px;padding:0 9px;gap:7px;font-size:8px}body:not(.store-home) .cart-count{min-width:18px;height:18px}}
+
+/* BLCKSI wordmark — BLK branco + SI verde neon, consistente em todas as páginas */
+.site-header .logo{display:inline-flex;align-items:baseline;gap:0;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase;white-space:nowrap}.site-header .logo strong{font-size:28px;font-weight:900;color:var(--text)}.site-header .logo .logo-accent{display:inline-block;font-size:28px;font-weight:900;letter-spacing:-1.5px;color:#D8FF3E;font-style:normal}.store-home .site-header .logo .logo-accent{color:#D8FF3E}@media(max-width:760px){.site-header .logo strong,.site-header .logo .logo-accent{font-size:25px}}
