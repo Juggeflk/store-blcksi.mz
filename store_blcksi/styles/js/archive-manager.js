@@ -5,7 +5,7 @@
   var workspace = document.getElementById('archiveWorkspace');
   var db = window.BLCKSI_CLIENT;
   var chaptersCache = [];
-  var entriesCache = [];
+  var entriesCache = [];\n  var editor = document.getElementById('archiveEditor');\n  var mediaBucket = 'archive-media';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
@@ -49,9 +49,9 @@
         escapeHtml(chapter.chapter_code) + ' / ' + escapeHtml(chapter.title) +
         '</strong><span>' + escapeHtml(chapter.theme || 'Sem tema definido') +
         ' · ' + (chapter.is_published ? 'PUBLICADO' : 'RASCUNHO') +
-        '</span></div><button type="button" data-toggle-chapter="' + escapeHtml(chapter.id) +
+        '</span></div><div class="archive-record-actions"><button type="button" data-edit-chapter="' + escapeHtml(chapter.id) + '">EDITAR</button><button type="button" data-move-chapter="' + escapeHtml(chapter.id) + '" data-dir="-1">↑</button><button type="button" data-move-chapter="' + escapeHtml(chapter.id) + '" data-dir="1">↓</button><button type="button" data-toggle-chapter="' + escapeHtml(chapter.id) +
         '" data-published="' + String(chapter.is_published) + '">' +
-        (chapter.is_published ? 'RETIRAR' : 'PUBLICAR') + '</button></article>';
+        (chapter.is_published ? 'RETIRAR' : 'PUBLICAR') + '</button></div></article>';
     }).join('');
   }
 
@@ -70,10 +70,10 @@
         escapeHtml(entry.archive_code) + ' / ' + escapeHtml(entry.title) +
         '</strong><span>' + escapeHtml(chapter.title || 'Capítulo') + ' · ' +
         (entry.is_published ? 'PUBLICADO' : 'RASCUNHO') +
-        '</span></div><button type="button" data-toggle-entry="' + escapeHtml(entry.id) +
+        '</span></div><div class="archive-record-actions"><button type="button" data-edit-entry="' + escapeHtml(entry.id) + '">EDITAR</button><button type="button" data-images="' + escapeHtml(entry.id) + '">IMAGENS</button><button type="button" data-preview="' + escapeHtml(entry.id) + '">PRÉ-VISUALIZAR</button><button type="button" data-toggle-entry="' + escapeHtml(entry.id) +
         '" data-published="' + String(entry.is_published) + '"' +
         ((!entry.is_published && !canPublish) ? ' disabled title="Publica primeiro o capítulo"' : '') +
-        '>' + (entry.is_published ? 'RETIRAR' : 'PUBLICAR') + '</button></article>';
+        '>' + (entry.is_published ? 'RETIRAR' : 'PUBLICAR') + '</button></div></article>';
     }).join('');
   }
 
@@ -89,8 +89,8 @@
     renderChapters();
 
     var entryResult = await db.from('archive_entries')
-      .select('id, sequence_number, archive_code, chapter_id, title, is_published, archive_chapters(chapter_code,title,is_published)')
-      .order('sequence_number', {ascending:false});
+      .select('*, archive_chapters(chapter_code,title,is_published), archive_entry_images(*)')
+      .order('position').order('sequence_number');
     if (entryResult.error) {
       setMessage('entryList', 'Erro ao carregar peças: ' + entryResult.error.message, true);
       return;
@@ -245,5 +245,27 @@
     await loadArchive();
   });
 
-  verifyAccess();
+
+  function openEditor(title, body) { editor.hidden=false; editor.innerHTML='<div class="archive-editor-head"><div><p class="archive-overline">CURADORIA / EDIÇÃO</p><h3>'+escapeHtml(title)+'</h3></div><button type="button" data-close-editor>FECHAR ×</button></div>'+body; editor.scrollIntoView({behavior:'smooth',block:'start'}); }
+  function editChapter(c) { openEditor('EDITAR CAPÍTULO','<form id="archiveEditChapter" class="archive-form" data-id="'+escapeHtml(c.id)+'"><label>CÓDIGO (FIXO)<input value="'+escapeHtml(c.chapter_code)+'" disabled></label><label>TÍTULO<input name="title" required value="'+escapeHtml(c.title)+'"></label><label>TEMA<input name="theme" value="'+escapeHtml(c.theme||'')+'"></label><label>SLUG<input name="slug" required value="'+escapeHtml(c.slug)+'"></label><label class="archive-form-wide">DESCRIÇÃO<textarea name="description">'+escapeHtml(c.description||'')+'</textarea></label><label class="archive-form-wide">CAPA (URL)<input name="cover_image_url" type="url" value="'+escapeHtml(c.cover_image_url||'')+'"></label><button type="submit">GUARDAR ALTERAÇÕES</button></form>'); }
+  function editEntry(e) { openEditor('EDITAR PEÇA · '+e.archive_code,'<form id="archiveEditEntry" class="archive-form" data-id="'+escapeHtml(e.id)+'"><label>CÓDIGO HISTÓRICO (FIXO)<input value="'+escapeHtml(e.archive_code)+'" disabled></label><label>CAPÍTULO DE ORIGEM (FIXO)<input value="'+escapeHtml(e.chapter_code)+'" disabled></label><label>TÍTULO<input name="title" required value="'+escapeHtml(e.title)+'"></label><label>SLUG<input name="slug" required value="'+escapeHtml(e.slug)+'"></label><label class="archive-form-wide">DESCRIÇÃO<textarea name="description">'+escapeHtml(e.description||'')+'</textarea></label><label class="archive-form-wide">NOTA HISTÓRICA<textarea name="historical_note">'+escapeHtml(e.historical_note||'')+'</textarea></label><label class="archive-form-wide">CAPA (URL)<input name="cover_image_url" type="url" value="'+escapeHtml(e.cover_image_url||'')+'"></label><button type="submit">GUARDAR ALTERAÇÕES</button></form>'); }
+  function manageImages(e) { var imgs=(e.archive_entry_images||[]).slice().sort((a,b)=>a.position-b.position); var rows=imgs.map(i=>'<article class="archive-image-item"><img src="'+escapeHtml(i.image_url)+'" alt=""><strong>'+(i.is_primary?'IMAGEM PRINCIPAL':'IMAGEM '+(i.position+1))+'</strong><div class="archive-image-actions">'+(!i.is_primary?'<button type="button" data-primary-image="'+escapeHtml(i.id)+'">DEFINIR PRINCIPAL</button>':'')+'<button type="button" data-delete-image="'+escapeHtml(i.id)+'">ELIMINAR</button></div></article>').join(''); openEditor('GALERIA · '+e.archive_code,'<p class="archive-empty">Adiciona várias imagens. A primeira será a principal; podes alterar esta escolha quando quiseres.</p><form id="archiveUploadImages" class="archive-form" data-id="'+escapeHtml(e.id)+'"><label class="archive-form-wide">IMAGENS (JPEG, PNG, WEBP · MÁX. 10 MB CADA)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required></label><label class="archive-form-wide">DESCRIÇÃO<input name="alt_text" maxlength="160" placeholder="Descrição das imagens"></label><button type="submit">CARREGAR IMAGENS +</button></form><div class="archive-image-grid">'+(rows||'<p class="archive-empty">Ainda não existem imagens adicionais.</p>')+'</div>'); }
+  function previewEntry(e) { var imgs=(e.archive_entry_images||[]).slice().sort((a,b)=>a.position-b.position); var cover=e.cover_image_url||(imgs[0]&&imgs[0].image_url)||''; var w=window.open('','_blank'); if(!w){alert('Permite janelas pop-up para pré-visualizar.');return;} w.document.write('<!doctype html><html lang="pt"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(e.archive_code)+'</title><style>body{margin:0;background:#080b0b;color:#f2f3ed;font:16px Arial}main{max-width:1000px;margin:auto;padding:6vw}small{color:#c9f36a;letter-spacing:.15em}h1{font-size:clamp(40px,8vw,90px)}p{line-height:1.8;color:#bdc8c0}.hero{width:100%;max-height:70vh;object-fit:cover}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}.gallery img{width:100%;height:280px;object-fit:cover}</style><main><small>BLCKSI ARCHIVE / '+escapeHtml(e.archive_code)+'</small><h1>'+escapeHtml(e.title)+'</h1><p>'+escapeHtml(e.description||'')+'</p>'+(cover?'<img class="hero" src="'+escapeHtml(cover)+'">':'')+'<p>'+escapeHtml(e.historical_note||'')+'</p><div class="gallery">'+imgs.map(i=>'<img src="'+escapeHtml(i.image_url)+'">').join('')+'</div><p>BUILT TO EVOLVE · PRÉ-VISUALIZAÇÃO PRIVADA</p></main></html>'); w.document.close(); }
+  async function refreshAndImages(id) { await loadArchive(); var e=entriesCache.find(x=>x.id===id); if(e)manageImages(e); }
+  workspace.addEventListener('click',async function(ev){ var b=ev.target.closest('button'); if(!b)return; try {
+    if(b.hasAttribute('data-close-editor')){editor.hidden=true;return;}
+    if(b.dataset.editChapter){editChapter(chaptersCache.find(x=>x.id===b.dataset.editChapter));return;}
+    if(b.dataset.editEntry){editEntry(entriesCache.find(x=>x.id===b.dataset.editEntry));return;}
+    if(b.dataset.images){manageImages(entriesCache.find(x=>x.id===b.dataset.images));return;}
+    if(b.dataset.preview){previewEntry(entriesCache.find(x=>x.id===b.dataset.preview));return;}
+    if(b.dataset.moveChapter){var i=chaptersCache.findIndex(x=>x.id===b.dataset.moveChapter),j=i+Number(b.dataset.dir);if(j<0||j>=chaptersCache.length)return;var a=chaptersCache[i],z=chaptersCache[j];var r1=await db.from('archive_chapters').update({position:z.position}).eq('id',a.id);if(r1.error)throw r1.error;var r2=await db.from('archive_chapters').update({position:a.position}).eq('id',z.id);if(r2.error)throw r2.error;await loadArchive();return;}
+    if(b.dataset.primaryImage){var q=await db.from('archive_entry_images').select('*').eq('id',b.dataset.primaryImage).single();if(q.error)throw q.error;var r=await db.from('archive_entry_images').update({is_primary:false}).eq('entry_id',q.data.entry_id);if(r.error)throw r.error;r=await db.from('archive_entry_images').update({is_primary:true}).eq('id',q.data.id);if(r.error)throw r.error;r=await db.from('archive_entries').update({cover_image_url:q.data.image_url}).eq('id',q.data.entry_id);if(r.error)throw r.error;await refreshAndImages(q.data.entry_id);return;}
+    if(b.dataset.deleteImage){var q=await db.from('archive_entry_images').select('*').eq('id',b.dataset.deleteImage).single();if(q.error)throw q.error;if(!confirm('Eliminar esta imagem da galeria?'))return;var r=await db.from('archive_entry_images').delete().eq('id',q.data.id);if(r.error)throw r.error;if(q.data.storage_path){var rm=await db.storage.from(mediaBucket).remove([q.data.storage_path]);if(rm.error)console.warn(rm.error.message);}if(q.data.is_primary){var next=await db.from('archive_entry_images').select('*').eq('entry_id',q.data.entry_id).order('position').limit(1);var url=next.data&&next.data[0]?next.data[0].image_url:null;if(next.data&&next.data[0])await db.from('archive_entry_images').update({is_primary:true}).eq('id',next.data[0].id);await db.from('archive_entries').update({cover_image_url:url}).eq('id',q.data.entry_id);}await refreshAndImages(q.data.entry_id);return;}
+  }catch(err){alert('Não foi possível concluir: '+err.message);} });
+  editor.addEventListener('submit',async function(ev){ev.preventDefault();var f=ev.target;try{
+    if(f.id==='archiveEditChapter'){var d=new FormData(f),r=await db.from('archive_chapters').update({title:String(d.get('title')).trim(),theme:String(d.get('theme')||'').trim()||null,slug:slugify(d.get('slug')),description:String(d.get('description')||'').trim()||null,cover_image_url:String(d.get('cover_image_url')||'').trim()||null}).eq('id',f.dataset.id);if(r.error)throw r.error;editor.hidden=true;await loadArchive();alert('Capítulo actualizado.');}
+    if(f.id==='archiveEditEntry'){var d=new FormData(f),r=await db.from('archive_entries').update({title:String(d.get('title')).trim(),slug:slugify(d.get('slug')),description:String(d.get('description')||'').trim()||null,historical_note:String(d.get('historical_note')||'').trim()||null,cover_image_url:String(d.get('cover_image_url')||'').trim()||null}).eq('id',f.dataset.id);if(r.error)throw r.error;editor.hidden=true;await loadArchive();alert('Peça actualizada.');}
+    if(f.id==='archiveUploadImages'){var files=Array.from(f.elements.images.files),id=f.dataset.id,alt=String(f.elements.alt_text.value||'').trim();if(!files.length)return;var current=await db.from('archive_entry_images').select('id,position').eq('entry_id',id);if(current.error)throw current.error;for(var i=0;i<files.length;i++){var file=files[i];if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>10*1024*1024)throw new Error('Cada imagem deve ser JPEG, PNG ou WEBP e ter até 10 MB.');var ext=file.type==='image/jpeg'?'jpg':file.type.split('/')[1],path=id+'/'+Date.now()+'-'+i+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;var up=await db.storage.from(mediaBucket).upload(path,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;var url=db.storage.from(mediaBucket).getPublicUrl(path).data.publicUrl;var first=current.data.length===0&&i===0;var ins=await db.from('archive_entry_images').insert({entry_id:id,image_url:url,storage_path:path,alt_text:alt||null,position:current.data.length+i,is_primary:first});if(ins.error){await db.storage.from(mediaBucket).remove([path]);throw ins.error;}if(first){var cap=await db.from('archive_entries').update({cover_image_url:url}).eq('id',id);if(cap.error)throw cap.error;}}await refreshAndImages(id);alert('Imagens carregadas.');}
+  }catch(err){alert('Erro: '+err.message);} });
+\n  verifyAccess();
 })();
