@@ -232,3 +232,17 @@
   .admin-shell .admin-color-field .admin-color-options{gap:7px}
   .admin-shell .admin-color-field .admin-color-options label{min-height:38px;padding:7px 9px;font-size:11px}
 }
+
+
+/* Acesso independente ao museu digital BLCKSI */
+.admin-shell .archive-entry-link{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  margin:0 0 18px;padding:17px 20px;
+  border:1px solid rgba(169,238,224,.28);
+  background:linear-gradient(110deg,rgba(8,64,60,.82),rgba(3,30,32,.72));
+}
+.admin-shell .archive-entry-link strong{display:block;color:#f4fbf8;font-size:12px;letter-spacing:.16em}
+.admin-shell .archive-entry-link span{display:block;margin-top:5px;color:var(--admin-muted);font-size:8px;letter-spacing:.16em}
+.admin-shell .archive-entry-link a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 15px;background:var(--admin-cyan);color:#022728;font-size:9px;font-weight:900;letter-spacing:.1em}
+.admin-shell .archive-entry-link a:hover{background:var(--admin-mint)}
+@media(max-width:600px){.admin-shell .archive-entry-link{align-items:stretch;flex-direction:column}.admin-shell .archive-entry-link a{width:100%}}
