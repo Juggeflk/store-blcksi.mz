@@ -29,7 +29,7 @@
   }
   function groupThreads(rows) {
     var map = {};
-    rows.forEach(function(m) {
+    rows.slice().sort(function(a,b){return new Date(a.created_at)-new Date(b.created_at);}).forEach(function(m) {
       var key = m.event_id + ':' + m.member_id;
       if (!map[key]) map[key] = {event_id:m.event_id,member_id:m.member_id,messages:[]};
       map[key].messages.push(m);
