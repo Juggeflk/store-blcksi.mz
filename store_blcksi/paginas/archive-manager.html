@@ -47,34 +47,34 @@
 
       <div class="archive-status-line"><span class="archive-status-dot"></span> ÁREA DE GESTÃO DISPONÍVEL <span>ESTRUTURA INICIAL</span></div>
 
-      <div class="archive-module-grid">
-        <article class="archive-module archive-module-feature">
-          <span class="module-index">01 / CURADORIA</span>
-          <div><h3>CAPÍTULOS</h3><p>Organizar a história BLCKSI por temas e conceitos.</p></div>
-          <span class="module-state">A PREPARAR</span>
-        </article>
-        <article class="archive-module">
-          <span class="module-index">02 / ACERVO</span>
-          <div><h3>PEÇAS</h3><p>Registar cada peça com código histórico único.</p></div>
-          <span class="module-state">A PREPARAR</span>
-        </article>
-        <article class="archive-module">
-          <span class="module-index">03 / VISUAL</span>
-          <div><h3>GALERIA</h3><p>Reunir imagens e materiais visuais do arquivo.</p></div>
-          <span class="module-state">A PREPARAR</span>
-        </article>
-        <article class="archive-module">
-          <span class="module-index">04 / RASCUNHOS</span>
-          <div><h3>RASCUNHOS</h3><p>Preparar conteúdos antes da publicação oficial.</p></div>
-          <span class="module-state">A PREPARAR</span>
-        </article>
-        <article class="archive-module archive-module-wide">
-          <span class="module-index">05 / COMUNIDADE</span>
-          <div><h3>SUBMISSÕES DA COMUNIDADE</h3><p>Rever histórias e fotografias enviadas pelos membros. Nenhuma submissão será publicada automaticamente.</p></div>
-          <span class="module-state">MODERAÇÃO MANUAL</span>
-        </article>
-      </div>
+      <div class="archive-management-grid">
+        <section class="archive-management-panel">
+          <div class="archive-panel-heading"><div><p class="archive-overline">01 / ORGANIZAÇÃO</p><h3>CAPÍTULOS</h3></div><span id="chapterCount">0 REGISTADOS</span></div>
+          <form id="chapterForm" class="archive-form">
+            <label>CÓDIGO DO CAPÍTULO<input name="chapter_code" required pattern="CH[0-9]{2,}" placeholder="CH01" maxlength="12"></label>
+            <label>TÍTULO<input name="title" required maxlength="140" placeholder="Nome do capítulo"></label>
+            <label>TEMA / CONCEITO<input name="theme" maxlength="160" placeholder="Ex.: Identidade, origem, evolução"></label>
+            <label>SLUG<input name="slug" required maxlength="160" placeholder="nome-do-capitulo"></label>
+            <label class="archive-form-wide">DESCRIÇÃO<textarea name="description" rows="3" placeholder="Contexto e história deste capítulo"></textarea></label>
+            <button type="submit">CRIAR CAPÍTULO +</button>
+          </form>
+          <div id="chapterList" class="archive-record-list"><p class="archive-empty">A carregar capítulos...</p></div>
+        </section>
 
+        <section class="archive-management-panel">
+          <div class="archive-panel-heading"><div><p class="archive-overline">02 / ACERVO HISTÓRICO</p><h3>PEÇAS</h3></div><span id="entryCount">0 REGISTADAS</span></div>
+          <form id="entryForm" class="archive-form">
+            <label>CAPÍTULO DE ORIGEM<select name="chapter_id" required><option value="">Selecciona um capítulo</option></select></label>
+            <label>TÍTULO DA PEÇA<input name="title" required maxlength="180" placeholder="Nome da peça"></label>
+            <label>SLUG<input name="slug" required maxlength="180" placeholder="nome-da-peca"></label>
+            <label>IMAGEM DE CAPA (URL)<input name="cover_image_url" type="url" placeholder="https://..."></label>
+            <label class="archive-form-wide">DESCRIÇÃO<textarea name="description" rows="3" placeholder="Descrição da peça"></textarea></label>
+            <label class="archive-form-wide">NOTA HISTÓRICA<textarea name="historical_note" rows="3" placeholder="Contexto, origem e significado"></textarea></label>
+            <button type="submit">REGISTAR PEÇA +</button>
+          </form>
+          <div id="entryList" class="archive-record-list"><p class="archive-empty">A carregar peças...</p></div>
+        </section>
+      </div>
       <section class="archive-principles">
         <p class="archive-overline">REGRAS DO ACERVO / FIXAS</p>
         <div><strong>CH01-001</strong><span>Identificação da peça: capítulo de origem + sequência histórica única.</span></div>
