@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BLCKSI COMMUNITY — Event Manager</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles/css/main.css">
+  <link rel="stylesheet" href="../styles/css/admin-panel.css">
+  <link rel="stylesheet" href="../styles/css/community-events.css">
+  <link rel="stylesheet" href="../styles/css/events-manager.css">
+</head>
+<body class="admin-shell events-manager-shell">
+<header class="site-header"><div class="wrap header-inner"><a class="admin-brand" href="admin.html"><strong class="admin-logo-mark">BLK</strong><span class="admin-logo-name">BLCKSI<br>COMMUNITY</span><span class="admin-brand-label">EVENT MANAGER</span></a><a class="text-link" href="admin.html">VOLTAR AO BACK OFFICE ↗</a></div></header>
+<main class="product-page"><div class="wrap events-manager-wrap">
+  <div class="admin-heading"><div><p class="eyebrow">BLCKSI / COMMUNITY / SEASONS</p><h1 class="cart-title">SEASON<br>EVENTS.</h1><p class="admin-subtitle">UMA TEMPORADA · UMA FESTA · UMA EXPERIÊNCIA</p></div><span class="admin-live"><i></i> GESTÃO ADMINISTRATIVA</span></div>
+  <section id="eventManagerAccess" class="admin-card"><h2>A VALIDAR ACESSO...</h2><p>Esta área está reservada à administração.</p></section>
+  <section id="eventManagerWorkspace" hidden>
+    <div class="events-manager-grid">
+      <section class="admin-table events-create-panel"><h2>CRIAR EVENTO DA TEMPORADA</h2>
+        <form id="eventCreateForm" class="admin-form">
+          <label>TEMPORADA<input name="season_label" required maxlength="80" placeholder="Ex.: SEASON 01 / SUMMER"></label>
+          <label>CÓDIGO ÚNICO<input name="season_key" required maxlength="80" placeholder="season-01"></label>
+          <label class="events-wide">TÍTULO DO EVENTO<input name="title" required maxlength="160" placeholder="Nome da experiência"></label>
+          <label>DATA (OPCIONAL)<input name="event_date" type="date"></label>
+          <label class="events-wide">ANÚNCIO<textarea name="announcement" rows="4" maxlength="1500" placeholder="Apresentação da festa, conceito e condições. Não coloques aqui a localização privada."></textarea></label>
+          <p class="events-rule">ENTRADA GRATUITA · CONSUMO PAGO INDIVIDUALMENTE · SEM INSCRIÇÕES</p>
+          <button type="submit">GUARDAR EVENTO COMO RASCUNHO +</button>
+          <p id="eventCreateStatus" class="cart-small events-wide" role="status"></p>
+        </form>
+      </section>
+      <section class="admin-table"><h2>EVENTOS POR TEMPORADA</h2><div id="managedEvents"><p>A carregar...</p></div></section>
+    </div>
+    <section class="admin-table events-inbox"><h2>MENSAGENS DOS MEMBROS</h2><p class="events-help">Pedidos privados de localização e horário. Responde diretamente na conversa. Não representam inscrições ou confirmações de presença.</p><div id="eventInbox"><p>A carregar mensagens...</p></div></section>
+    <section id="eventReplyPanel" class="admin-table events-reply" hidden><h2>RESPONDER AO MEMBRO</h2><div id="eventConversation"></div><form id="eventReplyForm"><label for="eventReply">RESPOSTA</label><textarea id="eventReply" name="message" rows="3" maxlength="2000" required placeholder="Escreve a localização e o horário de chegada..."></textarea><button type="submit">ENVIAR RESPOSTA ↗</button><p id="eventReplyStatus" role="status"></p></form></section>
+  </section>
+</div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../styles/js/supabase-config.js"></script><script src="../styles/js/events-manager.js"></script>
+</body></html>
