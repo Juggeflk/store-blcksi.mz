@@ -5,7 +5,9 @@
   var workspace = document.getElementById('archiveWorkspace');
   var db = window.BLCKSI_CLIENT;
   var chaptersCache = [];
-  var entriesCache = [];\n  var editor = document.getElementById('archiveEditor');\n  var mediaBucket = 'archive-media';
+  var entriesCache = [];
+  var editor = document.getElementById('archiveEditor');
+  var mediaBucket = 'archive-media';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
@@ -187,7 +189,8 @@
       title: String(data.get('title')).trim(),
       slug: slugify(data.get('slug')),
       description: String(data.get('description') || '').trim() || null,
-      historical_note: String(data.get('historical_note') || '').trim() || null,\n      position: entriesCache.length,
+      historical_note: String(data.get('historical_note') || '').trim() || null,
+      position: entriesCache.length,
       cover_image_url: String(data.get('cover_image_url') || '').trim() || null,
       is_published: false
     };
