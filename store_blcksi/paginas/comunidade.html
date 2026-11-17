@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="BLCKSI COMMUNITY — eventos exclusivos por temporada.">
+  <title>BLCKSI COMMUNITY — Eventos</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../styles/css/main.css">
+  <link rel="stylesheet" href="../styles/css/community-events.css">
+</head>
+<body class="community-shell">
+<header class="site-header"><div class="wrap header-inner">
+  <a href="index.html" class="logo"><strong>BLK</strong><span class="logo-accent">SI</span></a>
+  <nav class="nav-links"><a href="index.html">LOJA</a><a href="sobre.html">A BLCKSI</a><a href="archive.html">ARCHIVE</a></nav>
+  <a class="community-top-link" href="index.html">VOLTAR À LOJA ↗</a>
+</div></header>
+<main class="community-wrap">
+  <section class="community-hero">
+    <p class="community-kicker">BLCKSI / COMMUNITY / SEASONAL EXPERIENCES</p>
+    <h1>ONE SEASON.<br><em>ONE EXPERIENCE.</em></h1>
+    <p>Encontros sociais e experiências criadas pela BLCKSI. Uma festa oficial por temporada.</p>
+    <div class="community-benefits"><span>ENTRADA GRATUITA</span><span>CONSUMO PAGO INDIVIDUALMENTE</span></div>
+  </section>
+  <section id="communityAuth" class="community-auth">
+    <div><p class="community-kicker">MEMBER ACCESS</p><h2>ENTRA NA COMUNIDADE</h2><p>Inicia sessão para consultar os eventos e pedir, por mensagem, a localização e a hora a que pretendes chegar.</p></div>
+    <form id="communityLogin" class="community-login-form">
+      <label>Email<input type="email" name="email" autocomplete="username" required></label>
+      <label>Palavra-passe<input type="password" name="password" autocomplete="current-password" required></label>
+      <button type="submit">ENTRAR NA COMUNIDADE ↗</button>
+      <p id="communityLoginMessage" role="status"></p>
+    </form>
+  </section>
+  <section id="communityEvents" hidden>
+    <div class="community-section-head"><div><p class="community-kicker">THE CURRENT SEASON</p><h2>O EVENTO.</h2></div><button id="communityLogout" class="community-logout" type="button">SAIR</button></div>
+    <div id="communityEventList" class="community-event-list"><p>A carregar o evento da temporada...</p></div>
+    <section id="communityThread" class="community-thread" hidden>
+      <div class="community-thread-head"><div><p class="community-kicker">PRIVATE MESSAGE</p><h2>FALA COM A BLCKSI.</h2><p>Solicita a localização e o horário de chegada. Não é uma inscrição nem uma confirmação de presença.</p></div></div>
+      <div id="communityMessages" class="community-messages" aria-live="polite"></div>
+      <form id="communityMessageForm" class="community-message-form">
+        <label for="communityMessage">A TUA MENSAGEM</label>
+        <textarea id="communityMessage" name="message" maxlength="2000" rows="3" required placeholder="Olá BLCKSI! Gostaria de receber a localização e o horário da festa."></textarea>
+        <button type="submit">ENVIAR MENSAGEM ↗</button>
+        <p id="communityMessageStatus" role="status"></p>
+      </form>
+    </section>
+  </section>
+</main>
+<footer class="community-footer"><span>BLCKSI COMMUNITY</span><span>BUILT TO EVOLVE.</span><a href="index.html">BLCKSI STORE ↗</a></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../styles/js/supabase-config.js"></script>
+<script src="../styles/js/community-events.js"></script>
+</body>
+</html>
