@@ -70,7 +70,7 @@
         escapeHtml(entry.archive_code) + ' / ' + escapeHtml(entry.title) +
         '</strong><span>' + escapeHtml(chapter.title || 'Capítulo') + ' · ' +
         (entry.is_published ? 'PUBLICADO' : 'RASCUNHO') +
-        '</span></div><div class="archive-record-actions"><button type="button" data-edit-entry="' + escapeHtml(entry.id) + '">EDITAR</button><button type="button" data-images="' + escapeHtml(entry.id) + '">IMAGENS</button><button type="button" data-preview="' + escapeHtml(entry.id) + '">PRÉ-VISUALIZAR</button><button type="button" data-toggle-entry="' + escapeHtml(entry.id) +
+        '</span></div><div class="archive-record-actions"><button type="button" data-edit-entry="' + escapeHtml(entry.id) + '">EDITAR</button><button type="button" data-images="' + escapeHtml(entry.id) + '">IMAGENS</button><button type="button" data-move-entry="' + escapeHtml(entry.id) + '" data-dir="-1">↑</button><button type="button" data-move-entry="' + escapeHtml(entry.id) + '" data-dir="1">↓</button><button type="button" data-preview="' + escapeHtml(entry.id) + '">PRÉ-VISUALIZAR</button><button type="button" data-toggle-entry="' + escapeHtml(entry.id) +
         '" data-published="' + String(entry.is_published) + '"' +
         ((!entry.is_published && !canPublish) ? ' disabled title="Publica primeiro o capítulo"' : '') +
         '>' + (entry.is_published ? 'RETIRAR' : 'PUBLICAR') + '</button></div></article>';
@@ -187,7 +187,7 @@
       title: String(data.get('title')).trim(),
       slug: slugify(data.get('slug')),
       description: String(data.get('description') || '').trim() || null,
-      historical_note: String(data.get('historical_note') || '').trim() || null,
+      historical_note: String(data.get('historical_note') || '').trim() || null,\n      position: entriesCache.length,
       cover_image_url: String(data.get('cover_image_url') || '').trim() || null,
       is_published: false
     };
