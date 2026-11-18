@@ -3,57 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="BLCKSI ARCHIVE — um museu digital de peças, histórias e momentos da cultura BLCKSI.">
+  <meta name="description" content="BLCKSI ARCHIVE — um museu visual de peças, histórias e momentos da cultura BLCKSI.">
   <title>BLCKSI ARCHIVE — Built to Evolve</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../styles/css/archive-public.css?v=archive-public-01">
+  <link rel="stylesheet" href="../styles/css/archive-public.css?v=visual-feed-02">
 </head>
 <body class="archive-public">
-  <a class="skip-link" href="#archiveContent">Saltar para o arquivo</a>
-  <header class="public-topbar">
-    <a class="wordmark" href="index.html">BLK<span>SI</span><small>ARCHIVE / DIGITAL MUSEUM</small></a>
-    <nav aria-label="Navegação principal">
-      <a href="#chapters">CAPÍTULOS</a>
-      <a href="#about">SOBRE O ARQUIVO</a>
-      <a class="store-link" href="index.html">VOLTAR À LOJA ↗</a>
+  <a class="skip-link" href="#feed">Saltar para o acervo visual</a>
+
+  <header class="archive-topbar">
+    <a class="archive-wordmark" href="archive.html" aria-label="BLCKSI Archive — início">BLK<span>SI</span><small>ARCHIVE / DIGITAL MUSEUM</small></a>
+    <span class="archive-location">BEIRA, MOZAMBIQUE</span>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="archiveMenu" aria-label="Abrir menu"><span></span><span></span><small>MENU</small></button>
+    <nav class="archive-menu" id="archiveMenu" aria-label="Menu principal" hidden>
+      <div class="menu-heading"><span>BLCKSI / ARCHIVE</span><button type="button" id="menuClose" aria-label="Fechar menu">×</button></div>
+      <a href="#feed" class="menu-link" data-menu-close>ACERVO VISUAL <span>↗</span></a>
+      <div class="menu-chapters"><p>EXPLORAR CAPÍTULOS</p><div id="menuChapters"><span class="menu-muted">A carregar capítulos…</span></div></div>
+      <a href="comunidade.html" class="menu-link">COMMUNITY <span>↗</span></a>
+      <a href="sobre.html" class="menu-link">SOBRE A BLCKSI <span>↗</span></a>
+      <a href="index.html" class="menu-link">VOLTAR À LOJA <span>↗</span></a>
+      <p class="menu-footer">BUILT TO EVOLVE — PRESERVE THE PROCESS.</p>
     </nav>
   </header>
 
-  <main id="archiveContent">
-    <section class="public-hero">
-      <div class="hero-grain" aria-hidden="true"></div>
-      <p class="eyebrow"><span></span> BLCKSI / MUSEU DIGITAL / BEIRA, MOZAMBIQUE</p>
-      <div class="hero-title-wrap">
-        <h1>BUILT TO<br><em>EVOLVE.</em></h1>
-        <p>Peças, ideias e momentos que contam a história de uma cultura em movimento.</p>
+  <main id="feed">
+    <section class="feed-intro" aria-label="Introdução ao arquivo">
+      <p>BLCKSI / MUSEU DIGITAL</p>
+      <span>PEÇAS, IDEIAS E MOMENTOS DE UMA CULTURA EM MOVIMENTO.</span>
+    </section>
+
+    <section class="visual-feed" aria-label="Acervo visual BLCKSI">
+      <div id="feedGrid" class="feed-grid" aria-live="polite">
+        <div class="feed-state"><span class="loader-dot"></span><p>A ABRIR O ACERVO…</p></div>
       </div>
-      <div class="hero-bottom"><span>BLCKSI ARCHIVE</span><span>EST. CULTURE</span><a href="#chapters">EXPLORAR O ACERVO ↓</a></div>
-    </section>
-
-    <section class="archive-introduction" id="about">
-      <p class="eyebrow">PRESERVAR O PROCESSO / 001</p>
-      <div><h2>Mais do que peças.<br><em>Uma história em construção.</em></h2><p>O BLCKSI ARCHIVE é o espaço onde preservamos os capítulos, as peças e os momentos que ajudam a definir a identidade da marca. Cada registo é selecionado e organizado com curadoria.</p></div>
-    </section>
-
-    <section class="archive-content" id="chapters">
-      <div class="content-heading"><div><p class="eyebrow">O ACERVO / EXPLORAÇÃO</p><h2>CAPÍTULOS <span>DA HISTÓRIA.</span></h2></div><p id="archiveCount">A preparar o arquivo…</p></div>
-      <div id="chapterFilters" class="chapter-filters" aria-label="Filtrar por capítulo"></div>
-      <div id="archiveSections" class="archive-sections" aria-live="polite">
-        <div class="loading-state"><span class="loader-dot"></span><p>A abrir o arquivo BLCKSI…</p></div>
-      </div>
-    </section>
-
-    <section class="archive-manifesto">
-      <p class="eyebrow">BUILT TO EVOLVE</p>
-      <h2>O PASSADO<br>MOVE O <em>FUTURO.</em></h2>
-      <p>Uma história contínua. Uma identidade em evolução.</p>
+      <div id="feedSentinel" class="feed-sentinel" aria-hidden="true"></div>
+      <p id="feedStatus" class="feed-status" aria-live="polite"></p>
     </section>
   </main>
 
-  <footer class="public-footer"><a class="wordmark" href="archive.html">BLK<span>SI</span><small>ARCHIVE</small></a><span>BUILT TO EVOLVE — PRESERVE THE PROCESS.</span><a href="index.html">VOLTAR À BLCKSI STORE ↗</a></footer>
+  <footer class="archive-footer">
+    <a class="archive-wordmark" href="archive.html">BLK<span>SI</span><small>ARCHIVE</small></a>
+    <span>BUILT TO EVOLVE — PRESERVE THE PROCESS.</span>
+    <a href="index.html">BLCKSI STORE ↗</a>
+  </footer>
+
+  <dialog class="entry-dialog" id="entryDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-head"><span id="dialogCode">BLCKSI ARCHIVE</span><button type="button" id="dialogClose" aria-label="Fechar detalhe">×</button></div>
+    <div id="dialogContent"></div>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../styles/js/supabase-config.js"></script>
-  <script src="../styles/js/archive-public.js?v=archive-public-01"></script>
+  <script src="../styles/js/archive-public.js?v=visual-feed-02"></script>
 </body>
 </html>
