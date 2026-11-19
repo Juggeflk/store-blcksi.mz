@@ -8,7 +8,7 @@ async function loadPosts(){
 var box=document.getElementById('myPosts');box.textContent='A carregar...';
 var r=await db.from('community_posts').select('id,caption,status,moderation_note,created_at,community_post_images(image_url,position)').eq('member_id',user.id).order('created_at',{ascending:false});
 if(r.error){box.textContent='Não foi possível carregar: '+r.error.message;return;}
-box.innerHTML=r.data.length?r.data.map(function(p){var imgs=(p.community_post_images||[]).sort(function(a,b){return a.position-b.position;}).map(function(i){return '<img src="'+esc(i.image_url)+'" alt="Fotografia da publicação">';}).join('');return '<article class="member-post"><strong>'+statusName(p.status)+'</strong><p>'+esc(p.caption)+'</p>'+imgs+(p.moderation_note?'<p class="member-note">NOTA DA BLCKSI: '+esc(p.moderation_note)+'</p>':'')+'<small class="member-note">'+new Date(p.created_at).toLocaleString('pt-MZ')+'</small></article>';}).join(''):'<p class="member-note">Ainda não tens publicações.</p>';
+box.innerHTML=r.data.length?r.data.map(function(p){var imgs=(p.community_post_images||[]).sort(function(a,b){return a.position-b.position;}).map(function(i){return '<img src="'+esc(i.image_url)+'" alt="Fotografia da publicação">';}).join('');return '<article class="member-post" data-member-post="'+p.id+'"><strong>'+statusName(p.status)+'</strong><p>'+esc(p.caption)+'</p>'+imgs+(p.moderation_note?'<p class="member-note">NOTA DA BLCKSI: '+esc(p.moderation_note)+'</p>':'')+'<small class="member-note">'+new Date(p.created_at).toLocaleString('pt-MZ')+'</small>'+(p.status==='rejected'||p.status==='changes_requested'?'<p><button type="button" data-resubmit="'+p.id+'">CORRIGIR E REENVIAR</button></p>':'')+'</article>';}).join(''):'<p class="member-note">Ainda não tens publicações.</p>';
 }
 async function init(){
 var u=await db.auth.getUser();if(u.error||!u.data.user){authBox.hidden=false;area.hidden=true;return;}
@@ -21,7 +21,7 @@ document.getElementById('memberLogin').addEventListener('submit',async function(
 document.getElementById('nicknameForm').addEventListener('submit',async function(e){e.preventDefault();var n=e.currentTarget.elements.nickname.value.trim();var b=e.currentTarget.querySelector('button');b.disabled=true;var r=await db.from('profiles').update({nickname:n}).eq('id',user.id);b.disabled=false;document.getElementById('nicknameStatus').textContent=r.error?(r.error.code==='23505'?'Este nickname já está ocupado. Escolhe outro.':'Não foi possível guardar: '+r.error.message):'Nickname guardado: @'+n;});
 document.getElementById('postForm').addEventListener('submit',async function(e){
 e.preventDefault();var f=e.currentTarget,files=Array.from(f.elements.images.files),b=f.querySelector('button'),out=document.getElementById('postStatus');
-if(!files.length||files.length>5){out.textContent='Escolhe entre 1 e 5 fotografias.';return;}
+if((!files.length&&!f.dataset.resubmit)||files.length>5){out.textContent='Escolhe entre 1 e 5 fotografias.';return;}
 if(files.some(function(x){return !['image/jpeg','image/png','image/webp'].includes(x.type)||x.size>10485760;})){out.textContent='Formato inválido ou fotografia acima de 10 MB.';return;}
 var profile=await db.from('profiles').select('nickname').eq('id',user.id).maybeSingle();if(profile.error||!profile.data||!profile.data.nickname){out.textContent='Guarda primeiro o teu nickname.';return;}
 b.disabled=true;out.textContent='A criar publicação...';
@@ -35,9 +35,10 @@ var pub=db.storage.from('community-media').getPublicUrl(path);
 rows.push({post_id:post.data.id,image_url:pub.data.publicUrl,storage_path:path,alt_text:'BLCKSI member gallery',position:i});
 }
 if(!failed){var ins=await db.from('community_post_images').insert(rows);if(ins.error)failed=ins.error;}
-if(failed){out.textContent='A publicação foi guardada, mas houve um problema ao enviar as imagens. Contacta a BLCKSI para concluir o envio.';}else{f.reset();out.textContent='Recebido. A tua publicação está pendente de aprovação.';}
+if(failed){out.textContent='A publicação foi guardada, mas houve um problema ao enviar as imagens. Contacta a BLCKSI para concluir o envio.';}else{f.reset();delete f.dataset.resubmit;f.elements.images.required=true;out.textContent='Recebido. A tua publicação está pendente de aprovação.';}
 b.disabled=false;await loadPosts();
 });
+document.getElementById('myPosts').addEventListener('click',async function(e){var b=e.target.closest('[data-resubmit]');if(!b)return;var r=await db.from('community_posts').select('id,caption,status').eq('id',b.dataset.resubmit).single();if(r.error){alert('Não foi possível abrir a publicação.');return;}if(!['rejected','changes_requested'].includes(r.data.status))return;var form=document.getElementById('postForm');form.dataset.resubmit=r.data.id;form.elements.caption.value=r.data.caption||'';form.elements.images.required=false;document.getElementById('postStatus').textContent='A corrigir publicação devolvida pela BLCKSI. Selecciona as imagens corrigidas e envia novamente.';form.scrollIntoView({behavior:'smooth',block:'center'});});
 document.getElementById('memberLogout').addEventListener('click',async function(){await db.auth.signOut();user=null;init();});
 if(db)init().catch(function(e){console.error(e);});
 })();
