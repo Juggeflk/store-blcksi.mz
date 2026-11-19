@@ -6,7 +6,7 @@
   <meta name="description" content="BLCKSI ARCHIVE — um museu visual de peças, histórias e momentos da cultura BLCKSI.">
   <title>BLCKSI ARCHIVE — Built to Evolve</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../styles/css/archive-public.css?v=visual-feed-03">
+  <link rel="stylesheet" href="../styles/css/archive-public.css?v=community-feed-01">
 </head>
 <body class="archive-public">
   <a class="skip-link" href="#feed">Saltar para o acervo visual</a>
@@ -19,7 +19,7 @@
       <div class="menu-heading"><span>BLCKSI / ARCHIVE</span><button type="button" id="menuClose" aria-label="Fechar menu">×</button></div>
       <a href="#feed" class="menu-link" data-menu-close>ACERVO VISUAL <span>↗</span></a>
       <div class="menu-chapters"><p>EXPLORAR CAPÍTULOS</p><div id="menuChapters"><span class="menu-muted">A carregar capítulos…</span></div></div>
-      <a href="comunidade.html" class="menu-link">COMMUNITY <span>↗</span></a>
+      <a href="archive-community.html" class="menu-link">PARTILHAR NA COMUNIDADE <span>↗</span></a><a href="comunidade.html" class="menu-link">EVENTOS COMMUNITY <span>↗</span></a>
       <a href="sobre.html" class="menu-link">SOBRE A BLCKSI <span>↗</span></a>
       <a href="index.html" class="menu-link">VOLTAR À LOJA <span>↗</span></a>
       <p class="menu-footer">BUILT TO EVOLVE — PRESERVE THE PROCESS.</p>
@@ -27,7 +27,7 @@
   </header>
 
   <main id="feed">
-    <section class="visual-feed" aria-label="Acervo visual BLCKSI">
+    <section class="visual-feed" aria-label="Acervo visual BLCKSI"><div class="feed-filters" role="group" aria-label="Filtrar publicações"><button type="button" data-feed-filter="all" class="active">TUDO</button><button type="button" data-feed-filter="official">BLCKSI</button><button type="button" data-feed-filter="community">COMUNIDADE</button><a href="archive-community.html">PUBLICAR +</a></div>
       <div id="feedGrid" class="feed-grid" aria-live="polite">
         <div class="feed-state"><span class="loader-dot"></span><p>A ABRIR O ACERVO…</p></div>
       </div>
@@ -49,6 +49,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../styles/js/supabase-config.js"></script>
-  <script src="../styles/js/archive-public.js?v=visual-feed-02"></script>
+  <script src="../styles/js/archive-public.js?v=community-feed-01"></script>
 </body>
 </html>
