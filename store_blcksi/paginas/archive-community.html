@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Partilha o teu registo BLCKSI com a comunidade.">
+<title>BLCKSI ARCHIVE — Comunidade</title>
+<link rel="stylesheet" href="../styles/css/main.css">
+<link rel="stylesheet" href="../styles/css/archive-public.css">
+<style>
+.member-page{max-width:900px;margin:0 auto;padding:40px 18px 90px}.member-page h1{font-size:clamp(34px,7vw,64px);letter-spacing:-.06em}.member-panel{border:1px solid var(--line);padding:clamp(18px,4vw,32px);margin:22px 0;background:var(--panel)}.member-panel label{display:block;font:10px var(--mono);letter-spacing:.12em;color:var(--muted);margin:16px 0}.member-panel input,.member-panel textarea{display:block;width:100%;margin-top:8px;background:#080b09;border:1px solid var(--line);color:var(--white);padding:13px;font:14px Arial}.member-panel button{background:var(--acid);border:0;color:#111;padding:13px 18px;font:10px var(--mono);letter-spacing:.1em;cursor:pointer}.member-panel button:disabled{opacity:.5}.member-note{color:var(--muted);font:11px/1.7 var(--mono)}.member-status{min-height:22px;color:var(--acid);font:11px var(--mono)}.member-post{border-top:1px solid var(--line);padding:16px 0}.member-post img{width:100%;max-height:260px;object-fit:cover;margin:8px 0}.member-top{display:flex;justify-content:space-between;gap:12px;align-items:center}.member-top a{font:9px var(--mono);color:var(--acid)}
+</style>
+</head>
+<body class="archive-public">
+<header class="archive-topbar"><a class="archive-wordmark" href="archive.html">BLC<span>KSI</span><small>ARCHIVE / COMMUNITY</small></a><span class="archive-location">BEIRA, MOZAMBIQUE</span><a class="menu-toggle" href="archive.html">VOLTAR ↗</a></header>
+<main class="member-page">
+<p class="archive-location">BLCKSI / MEMBER GALLERY</p><h1>O TEU REGISTO.<br><span style="color:var(--acid)">A NOSSA HISTÓRIA.</span></h1>
+<p class="member-note">Partilha fotografias tuas a usar peças BLCKSI. As publicações são revistas pela equipa antes de aparecerem no feed público.</p>
+<section id="memberAuth" class="member-panel">
+<h2>ENTRAR NA COMUNIDADE</h2><form id="memberLogin"><label>EMAIL<input name="email" type="email" required autocomplete="username"></label><label>PALAVRA-PASSE<input name="password" type="password" required autocomplete="current-password"></label><button type="submit">ENTRAR</button><p id="memberLoginStatus" class="member-status"></p></form>
+</section>
+<section id="memberArea" hidden>
+<div class="member-panel"><div class="member-top"><h2>IDENTIDADE PÚBLICA</h2><span class="member-note">NOME NÃO VISÍVEL</span></div><form id="nicknameForm"><label>O TEU NICKNAME<input name="nickname" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" placeholder="ex.: b_town" required></label><p class="member-note">Único, 3–24 caracteres: letras, números e underscore.</p><button type="submit">GUARDAR NICKNAME</button><p id="nicknameStatus" class="member-status"></p></form></div>
+<div class="member-panel"><h2>NOVA PUBLICAÇÃO</h2><form id="postForm"><label>FOTOGRAFIAS (ATÉ 5)<input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required></label><label>LEGENDA<textarea name="caption" rows="3" maxlength="500" placeholder="Conta-nos algo sobre este registo..."></textarea></label><p class="member-note">JPEG, PNG ou WEBP · Máximo 10 MB por fotografia. Só serão públicas depois da aprovação.</p><button type="submit">ENVIAR PARA APROVAÇÃO ↗</button><p id="postStatus" class="member-status"></p></form></div>
+<div class="member-panel"><h2>AS TUAS PUBLICAÇÕES</h2><div id="myPosts"><p class="member-note">A carregar...</p></div></div>
+<button id="memberLogout" type="button">TERMINAR SESSÃO</button>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../styles/js/supabase-config.js"></script><script src="../styles/js/archive-community.js"></script>
+</body></html>
