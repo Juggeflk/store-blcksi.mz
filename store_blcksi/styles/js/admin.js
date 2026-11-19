@@ -111,6 +111,7 @@
       message.textContent = '';
       login.hidden = true;
       panel.hidden = false;
+      if(notificationPanel){notificationPanel.hidden=false;await loadArchiveNotifications();}
       await load('orders');
     } catch (err) {
       login.hidden = false;
@@ -315,8 +316,30 @@
 
   }
 
+  async function loadArchiveNotifications() {
+    var panel=document.getElementById('archiveAdminNotifications');
+    var list=document.getElementById('archiveNotificationList');
+    var summary=document.getElementById('archiveNotificationSummary');
+    if(!panel||panel.hidden)return;
+    summary.textContent='A carregar avisos...';list.textContent='';
+    var r=await db.from('archive_admin_notifications').select('id,post_id,member_id,author_nickname,event_type,created_at,read_at').order('created_at',{ascending:false}).limit(50);
+    if(r.error){summary.textContent='Não foi possível carregar avisos: '+r.error.message;return;}
+    var rows=r.data||[],unread=rows.filter(function(x){return !x.read_at;}).length;
+    summary.textContent=unread+' POR LER · '+rows.length+' AVISO(S) RECENTES';
+    list.innerHTML=rows.length?rows.map(function(n){return '<article class="admin-row" style="align-items:flex-start;gap:12px;"><div style="flex:1;min-width:220px;"><strong>'+(n.event_type==='resubmitted'?'PUBLICAÇÃO CORRIGIDA':'NOVA PUBLICAÇÃO')+'</strong><p>@'+esc(n.author_nickname)+' · '+date(n.created_at)+'</p><small>'+(n.read_at?'LIDO':'POR LER')+' · REF. '+esc(n.post_id)+'</small></div><div>'+(n.read_at?'':'<button type="button" data-archive-notification-read="'+esc(n.id)+'">MARCAR COMO LIDO</button>')+' <a href="archive-moderation.html">ABRIR MODERAÇÃO ↗</a></div></article>';}).join(''):'<p class="cart-small">Ainda não existem avisos.</p>';
+  }
   async function load(tab) {
-    document.querySelectorAll('[data-tab]').forEach(function (b) {
+    var notificationPanel=document.getElementById('archiveAdminNotifications');
+  if(notificationPanel){
+    notificationPanel.hidden=false;
+    document.getElementById('archiveNotificationRefresh').onclick=loadArchiveNotifications;
+    document.getElementById('archiveNotificationList').addEventListener('click',async function(e){
+      var b=e.target.closest('[data-archive-notification-read]');if(!b)return;b.disabled=true;
+      var r=await db.from('archive_admin_notifications').update({read_at:new Date().toISOString()}).eq('id',b.dataset.archiveNotificationRead);
+      if(r.error){b.disabled=false;alert('Não foi possível marcar o aviso: '+r.error.message);return;}await loadArchiveNotifications();
+    });
+  }
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
       b.classList.toggle('active', b.dataset.tab === tab);
     });
 
