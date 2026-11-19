@@ -6,7 +6,7 @@ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retur
 function statusName(s){return ({pending:'EM ANÁLISE',approved:'APROVADA',rejected:'REJEITADA',changes_requested:'CORREÇÃO SOLICITADA'})[s]||s;}
 async function loadPosts(){
 var box=document.getElementById('myPosts');box.textContent='A carregar...';
-var r=await db.from('community_posts').select('id,caption,status,moderation_note,created_at,community_post_images(image_url,position)').eq('member_id',user.id).order('created_at',{ascending:false});
+var r=await db.from('community_posts').select('id,caption,status,moderation_note,created_at,community_post_images(image_url,storage_path,position)').eq('member_id',user.id).order('created_at',{ascending:false});
 if(r.error){box.textContent='Não foi possível carregar: '+r.error.message;return;}
 box.innerHTML=r.data.length?r.data.map(function(p){var imgs=(p.community_post_images||[]).sort(function(a,b){return a.position-b.position;}).map(function(i){return '<img src="'+esc(i.image_url)+'" alt="Fotografia da publicação">';}).join('');return '<article class="member-post" data-member-post="'+p.id+'"><strong>'+statusName(p.status)+'</strong><p>'+esc(p.caption)+'</p>'+imgs+(p.moderation_note?'<p class="member-note">NOTA DA BLCKSI: '+esc(p.moderation_note)+'</p>':'')+'<small class="member-note">'+new Date(p.created_at).toLocaleString('pt-MZ')+'</small>'+(p.status==='rejected'||p.status==='changes_requested'?'<p><button type="button" data-resubmit="'+p.id+'">CORRIGIR E REENVIAR</button></p>':'')+'</article>';}).join(''):'<p class="member-note">Ainda não tens publicações.</p>';
 }
