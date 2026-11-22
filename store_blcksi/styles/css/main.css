@@ -242,3 +242,35 @@ body.category-page{background:#f1f1ed;color:#111}
 .category-page .product-grid>.product-card .product-meta p,
 .category-page .product-grid>.product-card .quick-buy-feedback{color:#555}
 .category-page .product-grid>.product-card .product-color-swatch{border-color:#777}
+
+
+/* BLCKSI — detalhe de produto em tema claro, mantendo header/footer escuros */
+body.store-product-detail-page{background:#f1f1ed;color:#111;color-scheme:light}
+.store-product-detail-page .product-page{background:#f1f1ed;color:#111}
+.store-product-detail-page .back-link{color:#666}
+.store-product-detail-page .product-info-v4{color:#111}
+.store-product-detail-page .product-info-v4 .eyebrow{color:#777}
+.store-product-detail-page .product-info-v4 h1,
+.store-product-detail-page .product-price-v4,
+.store-product-detail-page .product-options>span{color:#111}
+.store-product-detail-page .product-description-v4,
+.store-product-detail-page .product-note{color:#666}
+.store-product-detail-page .gallery-main-button{background:#e4e4de}
+.store-product-detail-page .gallery-thumb{background:#fff;border-color:#c9c9c2}
+.store-product-detail-page .gallery-thumb.active{border-color:#111}
+.store-product-detail-page .size-options button{min-width:54px;height:46px;border:1px solid #c9c9c2;border-radius:3px;background:#fff;color:#111;font-size:12px;font-weight:700;transition:background .18s,border-color .18s,transform .18s}
+.store-product-detail-page .size-options button:hover{border-color:#111;transform:translateY(-1px)}
+.store-product-detail-page .size-options button.active{background:#111;color:#fff;border-color:#111;box-shadow:0 0 0 2px #1112}
+.store-product-detail-page .color-options{display:flex;flex-wrap:wrap;gap:10px}
+.store-product-detail-page .color-option{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:7px 12px;border:1px solid #d0d0ca;border-radius:3px;background:#fff;color:#222;font-size:11px;cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s}
+.store-product-detail-page .color-option:hover{border-color:#777;transform:translateY(-1px)}
+.store-product-detail-page .color-option.active{border-color:#111;box-shadow:0 0 0 1px #111}
+.store-product-detail-page .product-color-dot{display:block;width:19px;height:19px;flex:0 0 19px;border-radius:50%;background:var(--product-color);border:1px solid #0002;box-shadow:inset 0 0 0 1px #ffffff30}
+.store-product-detail-page .add-cart-btn{background:#111;color:#fff;border-color:#111}
+.store-product-detail-page .add-cart-btn:hover{background:#d8ff3e;color:#080808;border-color:#d8ff3e}
+.store-product-detail-page .site-header .nav-actions{position:relative;z-index:60;display:flex;align-items:center;gap:8px}
+.site-header .search-trigger{display:grid;place-items:center;width:40px;height:40px;padding:8px;color:inherit}
+.site-header .search-trigger svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.site-header .cart-link{position:relative;z-index:61;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto}
+.site-header .nav-actions>*{pointer-events:auto}
+@media(max-width:760px){.site-header .search-trigger{display:grid!important;width:36px;height:38px}.store-product-detail-page .product-page{padding-top:26px}}
