@@ -227,3 +227,18 @@ body:not(.store-home) .cart-count{position:static;display:inline-grid;place-item
 .site-header .logo>strong{font-size:28px!important;line-height:1!important;font-weight:900!important;color:#f5f5f2!important;letter-spacing:-1.5px!important}
 .site-header .logo>span.logo-accent{display:inline!important;font-size:28px!important;line-height:1!important;font-weight:900!important;color:#D8FF3E!important;letter-spacing:-1.5px!important;border:0!important;padding:0!important;margin:0!important;font-style:normal!important}
 @media(max-width:760px){.site-header .logo>strong,.site-header .logo>span.logo-accent{font-size:25px!important}.site-header>.wrap:not(.header-inner)>.logo{margin:0 auto!important}.site-header>.wrap:not(.header-inner){justify-content:space-between!important}}
+
+
+/* BLCKSI — fundo claro exclusivo das páginas de categoria */
+body.category-page{background:#f1f1ed;color:#111}
+.category-page .product-page{background:#f1f1ed;color:#111}
+.category-page .product-page .back-link,
+.category-page .product-page .eyebrow{color:#666}
+.category-page .product-page #categoryTitle{color:#111}
+.category-page .product-grid>.product-card,
+.category-page .product-grid>.product-card .product-meta,
+.category-page .product-grid>.product-card .product-meta h3,
+.category-page .product-grid>.product-card .product-meta strong{color:#111}
+.category-page .product-grid>.product-card .product-meta p,
+.category-page .product-grid>.product-card .quick-buy-feedback{color:#555}
+.category-page .product-grid>.product-card .product-color-swatch{border-color:#777}
