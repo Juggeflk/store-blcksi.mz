@@ -136,7 +136,17 @@ function searchProducts(query) {
     document.querySelectorAll('[data-close-drawer], [data-close-search]').forEach(function (button) { button.addEventListener('click', closePanels); });
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closePanels(); });
     if (searchInput) searchInput.addEventListener('input', function () { searchProducts(searchInput.value); });
-    document.addEventListener('click', function(event){\n      var swatch=event.target.closest('.product-color-swatch');\n      if(swatch){event.preventDefault();event.stopPropagation();var card=swatch.closest('[data-home-product]');card.querySelectorAll('.product-color-swatch').forEach(function(b){b.classList.remove('selected')});swatch.classList.add('selected');card.dataset.selectedColor=swatch.dataset.color;return;}\n      var quick=event.target.closest('[data-quick-buy]');\n      if(quick){event.preventDefault();event.stopPropagation();var product=(window.BLCKSI_PRODUCTS||[]).find(function(p){return p.slug===quick.dataset.quickBuy});if(!product)return;var colors=product.available_colors||[];var chosen=quick.closest('[data-home-product]').dataset.selectedColor||'';if(colors.length&&!chosen){var feedback=quick.closest('[data-home-product]').querySelector('.quick-buy-feedback');feedback.textContent='Escolhe uma cor primeiro';return;}var ok=window.BLCKSICart&&window.BLCKSICart.add({slug:product.slug,name:product.name,price:product.price,image:product.image_url,color:chosen});var feedback=quick.closest('[data-home-product]').querySelector('.quick-buy-feedback');if(feedback)feedback.textContent=ok?'Adicionado ao carrinho':'Não foi possível adicionar';return;}\n    });\n    if (drawer) drawer.addEventListener('click', function (event) {
+    if (new URLSearchParams(window.location.search).get('search') === '1') {
+      openPanel(searchPanel, searchInput);
+      searchProducts('');
+    }
+    document.addEventListener('click', function(event){
+      var swatch=event.target.closest('.product-color-swatch');
+      if(swatch){event.preventDefault();event.stopPropagation();var card=swatch.closest('[data-home-product]');card.querySelectorAll('.product-color-swatch').forEach(function(b){b.classList.remove('selected')});swatch.classList.add('selected');card.dataset.selectedColor=swatch.dataset.color;return;}
+      var quick=event.target.closest('[data-quick-buy]');
+      if(quick){event.preventDefault();event.stopPropagation();var product=(window.BLCKSI_PRODUCTS||[]).find(function(p){return p.slug===quick.dataset.quickBuy});if(!product)return;var colors=product.available_colors||[];var chosen=quick.closest('[data-home-product]').dataset.selectedColor||'';if(colors.length&&!chosen){var feedback=quick.closest('[data-home-product]').querySelector('.quick-buy-feedback');feedback.textContent='Escolhe uma cor primeiro';return;}var ok=window.BLCKSICart&&window.BLCKSICart.add({slug:product.slug,name:product.name,price:product.price,image:product.image_url,color:chosen});var feedback=quick.closest('[data-home-product]').querySelector('.quick-buy-feedback');if(feedback)feedback.textContent=ok?'Adicionado ao carrinho':'Não foi possível adicionar';return;}
+    });
+    if (drawer) drawer.addEventListener('click', function (event) {
       var button = event.target.closest('[data-cart-action]'); if (!button) return;
       var item = BLCKSICart.read().find(function (x) { return x.slug === button.dataset.slug && (x.size || '') === (button.dataset.size || '') && (x.color || '') === (button.dataset.color || ''); });
       if (!item) return;
