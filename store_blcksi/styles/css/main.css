@@ -289,3 +289,42 @@ body.store-product-detail-page{background:#f1f1ed;color:#111;color-scheme:light}
 .store-product-detail-page .product-info-v4 .product-options:has(#colorOptions){margin-right:0}
 .store-product-detail-page .product-info-v4 .product-options #sizeOptions,
 .store-product-detail-page .product-info-v4 .product-options #colorOptions{min-height:46px;align-items:center}
+
+
+/* BLCKSI — galeria de produto: imagens centradas, sem cortes nem deformação */
+.store-product-detail-page .gallery-main-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#e9e9e4;
+  padding:12px;
+  box-sizing:border-box;
+}
+.store-product-detail-page .gallery-main-button img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center center;
+}
+.store-product-detail-page .gallery-thumbnails{
+  align-items:center;
+  gap:12px;
+}
+.store-product-detail-page .gallery-thumb{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  padding:4px;
+  background:#e9e9e4;
+  border:1px solid #d0d0ca;
+}
+.store-product-detail-page .gallery-thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center center;
+}
+.store-product-detail-page .gallery-thumb.active{border-color:#111;opacity:1}
